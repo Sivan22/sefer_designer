@@ -1,0 +1,152 @@
+@import "https://fonts.googleapis.com/css2?family=David+Libre:wght@500;700&family=Frank+Ruhl+Libre:wght@300;400;500;600;700;800;900&display=swap";
+
+@font-face { font-family: 'EFT Tefilot'; src: url('/fonts/EFT_Tefilot.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'PFT Vilna';  src: url('/fonts/PFT_Vilna.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'PFT Vilna';  src: url('/fonts/PFT_Vilna_Bold.ttf') format('truetype'); font-weight: 700; }
+@font-face { font-family: 'PFT Frank';  src: url('/fonts/PFT_Frank.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Tehila';     src: url('/fonts/TehilaR0.TTF') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Tehila';     src: url('/fonts/tehilabold.ttf') format('truetype'); font-weight: 700; }
+@font-face { font-family: 'Shefa';      src: url('/fonts/shefa.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Shefa';      src: url('/fonts/shefabold.ttf') format('truetype'); font-weight: 700; }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 98%;
+  --foreground: 0 0% 10%;
+  --card: 0 0% 96%;
+  --card-foreground: 0 0% 10%;
+  --popover: 0 0% 96%;
+  --popover-foreground: 0 0% 10%;
+  --primary: 0 0% 85%;
+  --primary-foreground: 0 0% 8%;
+  --secondary: 0 0% 90%;
+  --secondary-foreground: 0 0% 15%;
+  --muted: 0 0% 92%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 0 0% 88%;
+  --accent-foreground: 0 0% 15%;
+  --destructive: 0 0% 30%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 80%;
+  --input: 0 0% 80%;
+  --ring: 0 0% 85%;
+  --radius: 0.25rem;
+  --ornament: 0 0% 50%;
+  --page-bg: 0 0% 100%;
+  --page-shadow: 0 0% 70%;
+  --page-height: 922.2px;
+  --page-width: 642.52px;
+  --spread-width: 1285.04px;
+  --title-gold: 0 0% 55%;
+  --column-divider: 0 0% 75%;
+}
+
+.dark {
+  --background: 0 0% 8%;
+  --foreground: 0 0% 92%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 92%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 92%;
+  --primary: 0 0% 15%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 18%;
+  --secondary-foreground: 0 0% 92%;
+  --muted: 0 0% 18%;
+  --muted-foreground: 0 0% 60%;
+  --accent: 0 0% 18%;
+  --accent-foreground: 0 0% 92%;
+  --destructive: 0 0% 30%;
+  --destructive-foreground: 0 0% 92%;
+  --border: 0 0% 25%;
+  --input: 0 0% 25%;
+  --ring: 0 0% 15%;
+  --ornament: 0 0% 50%;
+  --page-bg: 0 0% 12%;
+  --page-shadow: 0 0% 6%;
+  --title-gold: 0 0% 25%;
+  --column-divider: 0 0% 30%;
+}
+
+* { box-sizing: border-box; }
+
+/* Page surfaces */
+.page-surface {
+  background: linear-gradient(180deg, hsl(var(--page-bg)), hsl(var(--page-bg)));
+  width: var(--page-width);
+  height: var(--page-height);
+  color: #000;
+  --foreground: 0 0% 0%;
+  --muted-foreground: 0 0% 0%;
+  --title-gold: 0 0% 0%;
+  border: 1px solid hsl(var(--page-shadow) / 0.4);
+  box-shadow: 0 4px 24px hsl(var(--page-shadow) / 0.35);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+.page-surface .text-ornament { color: #000 !important; }
+.page-surface-empty {
+  width: var(--page-width);
+  height: var(--page-height);
+  background: hsl(var(--muted) / 0.3);
+  border: 1px dashed hsl(var(--border) / 0.3);
+  flex-shrink: 0;
+}
+.spreads-container { display: flex; flex-direction: column; align-items: center; gap: 2rem; }
+
+/* Text styles */
+.main-text {
+  text-align: justify;
+  text-align-last: right;
+  text-justify: inter-word;
+  direction: rtl;
+  unicode-bidi: plaintext;
+  display: flow-root;
+  word-spacing: 0px;
+  letter-spacing: 0.2px;
+  -webkit-text-stroke: 0.3px currentColor;
+}
+
+/* Footnote styles */
+.footnote-item {
+  break-inside: avoid;
+  font-size: 10pt;
+  text-align: justify;
+  text-align-last: right;
+  text-justify: inter-word;
+  direction: rtl;
+  unicode-bidi: plaintext;
+  word-spacing: 1px;
+  letter-spacing: 0.3px;
+  -webkit-text-stroke: 0.3px currentColor;
+}
+.footnote-item b, .footnote-item strong { font-weight: 900; }
+.footnote-item p { display: inline; margin: 0; padding: 0; }
+.footnote-item a { color: currentColor; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+.footnote-marker { font-weight: 700; color: hsl(var(--title-gold)); margin-inline-end: 0.3rem; }
+.footnote-ref { font-weight: 400; font-size: 0.8em; color: hsl(var(--title-gold)); }
+.footnote-ref-inline { font-weight: 400; font-size: 0.9em; color: hsl(var(--title-gold)); }
+.paragraph-marker { font-weight: 700; }
+.footnote-marker-indent { display: inline-block; min-width: 1.5em; }
+.paragraph-marker-indent { display: inline-block; min-width: 1.5em; }
+
+/* Source references */
+.source-ref { font-size: 0.875rem; line-height: 1.25rem; color: hsl(var(--muted-foreground)); }
+.source-ref-highlight { background-color: rgba(255, 255, 0, 0.4); padding: 0 1px; border-radius: 1px; }
+.source-ref-reduce { font-size: 0.85em; }
+.single-source-flow .footnote-item { break-inside: auto; }
+
+/* Print/export mode */
+.pdf-export-mode-page {
+  background: hsl(var(--page-bg)) !important;
+  border-color: #ccc !important;
+  box-shadow: none !important;
+}
+.pdf-export-mode-page:after { display: none !important; }
+.main-text, .pdf-export-mode-page .footnote-item { color: #000 !important; }
