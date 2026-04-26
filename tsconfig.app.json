@@ -22,6 +22,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+    /* Interop */
+    "allowSyntheticDefaultImports": true,
+
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
