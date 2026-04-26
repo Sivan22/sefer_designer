@@ -1,5 +1,6 @@
 export type ViewMode = 'page' | 'spread'
 export type ExportStage = 'idle' | 'preparing' | 'uploading' | 'processing' | 'downloading' | 'saving' | 'done'
+export type FootnotesLayout = 'none' | 'single-torah' | 'single-story' | 'grid' | 'float'
 
 export interface ExportStatus {
   status: string
@@ -12,7 +13,6 @@ export interface FootnoteItem {
   marker: string
   formattedContent: string
   isSource?: boolean
-  position?: number
 }
 
 export interface PageSection {
@@ -32,6 +32,7 @@ export interface PageData {
   mainSections: PageSection[]
   torahFootnotes: FootnoteItem[]
   storyFootnotes: FootnoteItem[]
+  footnotesLayout: FootnotesLayout
   showMarginGuide?: boolean
 }
 

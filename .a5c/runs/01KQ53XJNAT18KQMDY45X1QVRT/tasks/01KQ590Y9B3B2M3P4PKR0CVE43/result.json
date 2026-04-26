@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "2026.01.results-v1",
+  "effectId": "01KQ590Y9B3B2M3P4PKR0CVE43",
+  "taskId": "final-verification",
+  "invocationKey": "pdf-formatter-clone:S000011:final-verification",
+  "status": "ok",
+  "result": {
+    "buildPassed": true,
+    "errors": [],
+    "missingFiles": [],
+    "summary": "Build and TypeScript checks pass cleanly, all 24 required source files exist, and 10 font files are present in public/fonts/ — the clone is complete with no outstanding issues.",
+    "tsPassed": true
+  },
+  "startedAt": "2026-04-26T16:13:19.238Z",
+  "finishedAt": "2026-04-26T16:13:19.238Z",
+  "value": {
+    "buildPassed": true,
+    "errors": [],
+    "missingFiles": [],
+    "summary": "Build and TypeScript checks pass cleanly, all 24 required source files exist, and 10 font files are present in public/fonts/ — the clone is complete with no outstanding issues.",
+    "tsPassed": true
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "agent": {
+    "name": "general-purpose",
+    "outputSchema": {
+      "properties": {
+        "buildPassed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "missingFiles": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "tsPassed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "buildPassed",
+        "tsPassed",
+        "summary"
+      ],
+      "type": "object"
+    },
+    "prompt": {
+      "context": {
+        "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+      },
+      "instructions": [
+        "Working directory: /mnt/volume_sfo3_01/captured_sefer_designer",
+        "Run: npm run build 2>&1 — capture output",
+        "Run: npx tsc --noEmit 2>&1 — capture output",
+        "Fix any remaining TypeScript errors or build errors",
+        "Verify the following files exist:",
+        "  src/main.tsx, src/App.tsx, src/index.css",
+        "  src/types/document.ts",
+        "  src/lib/supabase.ts, src/lib/mammoth-parser.ts, src/lib/document-layout.ts",
+        "  src/lib/classify-refs.ts, src/lib/pdf-export.ts",
+        "  src/hooks/useDocumentLoader.ts, src/hooks/useExport.ts",
+        "  src/components/UploadZone.tsx, src/components/ChapterHeader.tsx",
+        "  src/components/FootnotesSection.tsx, src/components/PageSurface.tsx",
+        "  src/components/SpreadView.tsx, src/components/Toolbar.tsx",
+        "  src/pages/Index.tsx, src/pages/Compare.tsx, src/pages/NotFound.tsx",
+        "  src/components/ui/button.tsx, src/components/ui/progress.tsx",
+        "  src/components/ui/tooltip.tsx, src/components/ui/toaster.tsx",
+        "  public/fonts/ (should contain at least 8 font files)",
+        "If any file is missing, create it using the plan",
+        "Run final: npm run build",
+        "Commit remaining changes with message: feat: complete 1-to-1 clone of pdf-formatter.lovable.app",
+        "Return full verification report"
+      ],
+      "outputFormat": "JSON with fields: buildPassed (boolean), tsPassed (boolean), missingFiles (array), errors (array), summary (string)",
+      "role": "Senior React/TypeScript engineer acting as QA",
+      "task": "Execute Task 11: Final Integration Verification for the Hebrew PDF Formatter clone"
+    }
+  },
+  "kind": "agent",
+  "title": "Task 11: Final Integration + Verification",
+  "schemaVersion": "2026.01.tasks-v1",
+  "effectId": "01KQ590Y9B3B2M3P4PKR0CVE43",
+  "taskId": "final-verification",
+  "invocationKey": "pdf-formatter-clone:S000011:final-verification",
+  "stepId": "S000011",
+  "inputs": {
+    "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+    "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+  }
+}

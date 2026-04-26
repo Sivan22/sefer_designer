@@ -14,17 +14,18 @@ export function useDocumentLoader() {
   const loadFile = useCallback(async (file: File) => {
     setState('loading')
     setError(null)
-    setStatusMsg('טוען את המסמך...')
+    setStatusMsg('\u{05D8}\u{05D5}\u{05E2}\u{05DF} \u{05D0}\u{05EA} \u{05D4}\u{05DE}\u{05E1}\u{05DE}\u{05DA}...')
     try {
       const buffer = await file.arrayBuffer()
-      setStatusMsg('מעבד את הדפים...')
-      const { title, chapters } = await parseDocx(buffer)
-      setStatusMsg('מסדר עמודים...')
-      const parsed = layoutDocument(chapters, title || file.name.replace('.docx', ''))
-      setDoc(parsed)
+      setStatusMsg('\u{05DE}\u{05E2}\u{05D1}\u{05D3} \u{05D0}\u{05EA} \u{05D4}\u{05D3}\u{05E4}\u{05D9}\u{05DD}...')
+      const parsed = await parseDocx(buffer)
+      setStatusMsg('\u{05DE}\u{05E1}\u{05D3}\u{05E8} \u{05E2}\u{05DE}\u{05D5}\u{05D3}\u{05D9}\u{05DD}...')
+      const layout = await layoutDocument(parsed)
+      setDoc(layout)
       setState('done')
-    } catch (e) {
-      setError('שגיאה בטעינת המסמך. אנא נסה שוב.')
+    } catch (e: unknown) {
+      console.error(e)
+      setError('\u{05E9}\u{05D2}\u{05D9}\u{05D0}\u{05D4} \u{05D1}\u{05D8}\u{05E2}\u{05D9}\u{05E0}\u{05EA} \u{05D4}\u{05DE}\u{05E1}\u{05DE}\u{05DA}. \u{05D0}\u{05E0}\u{05D0} \u{05E0}\u{05E1}\u{05D4} \u{05E9}\u{05D5}\u{05D1}.')
       setState('error')
     }
   }, [])

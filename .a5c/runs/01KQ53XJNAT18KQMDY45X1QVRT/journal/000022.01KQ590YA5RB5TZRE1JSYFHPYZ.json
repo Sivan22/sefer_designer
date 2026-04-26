@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T16:12:39.109Z",
+  "data": {
+    "effectId": "01KQ590Y9B3B2M3P4PKR0CVE43",
+    "invocationKey": "pdf-formatter-clone:S000011:final-verification",
+    "invocationHash": "55e8bbaf59b7e4bbbc87239ca7dd9be544d67958a34d45319b16587f86b8c968",
+    "stepId": "S000011",
+    "taskId": "final-verification",
+    "kind": "agent",
+    "label": "Task 11: Final Integration + Verification",
+    "taskDefRef": "tasks/01KQ590Y9B3B2M3P4PKR0CVE43/task.json"
+  },
+  "checksum": "cd353fa91693e919787ad4b3f4fc64a50d4f7fb86ff9467aeac3b4cbd05c4c1a"
+}

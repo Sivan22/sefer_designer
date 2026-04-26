@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "2026.01.results-v1",
+  "effectId": "01KQ58X4DNJS5MVCT10Z34DJ31",
+  "taskId": "pages",
+  "invocationKey": "pdf-formatter-clone:S000010:pages",
+  "status": "ok",
+  "result": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/pages/NotFound.tsx",
+      "src/pages/Index.tsx",
+      "src/pages/Compare.tsx",
+      "src/App.tsx"
+    ]
+  },
+  "startedAt": "2026-04-26T16:12:38.176Z",
+  "finishedAt": "2026-04-26T16:12:38.176Z",
+  "value": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/pages/NotFound.tsx",
+      "src/pages/Index.tsx",
+      "src/pages/Compare.tsx",
+      "src/App.tsx"
+    ]
+  }
+}
