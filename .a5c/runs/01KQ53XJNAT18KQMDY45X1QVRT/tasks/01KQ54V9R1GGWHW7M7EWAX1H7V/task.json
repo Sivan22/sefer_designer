@@ -1,0 +1,58 @@
+{
+  "agent": {
+    "name": "general-purpose",
+    "outputSchema": {
+      "properties": {
+        "buildPassed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "filesCreated": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "filesCreated",
+        "buildPassed"
+      ],
+      "type": "object"
+    },
+    "prompt": {
+      "context": {
+        "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+      },
+      "instructions": [
+        "Read the plan at docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "Execute ONLY Task 4 step by step",
+        "Create src/lib/mammoth-parser.ts exactly as shown in the plan",
+        "Run: npm run build and check for TypeScript errors related to this file",
+        "Fix any TS errors in mammoth-parser.ts (mammoth types may need @ts-ignore for default import)",
+        "Commit with message: feat: mammoth Word parser",
+        "Return summary of files created"
+      ],
+      "outputFormat": "JSON with fields: filesCreated (array), buildPassed (boolean), errors (array)",
+      "role": "Senior TypeScript engineer",
+      "task": "Execute Task 4 from the implementation plan: Mammoth Word Parser"
+    }
+  },
+  "kind": "agent",
+  "title": "Task 4: Mammoth Parser",
+  "schemaVersion": "2026.01.tasks-v1",
+  "effectId": "01KQ54V9R1GGWHW7M7EWAX1H7V",
+  "taskId": "mammoth-parser",
+  "invocationKey": "pdf-formatter-clone:S000004:mammoth-parser",
+  "stepId": "S000004",
+  "inputs": {
+    "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+    "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+  }
+}

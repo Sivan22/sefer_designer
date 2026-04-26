@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T15:04:25.829Z",
+  "data": {
+    "effectId": "01KQ5540YGHYGTJF0JHMZQHZ9H",
+    "invocationKey": "pdf-formatter-clone:S000008:ui-components",
+    "invocationHash": "8add3d2854dd3c77563663e7fe23397246814fcb658e4a1a349cf6611a4fb98e",
+    "stepId": "S000008",
+    "taskId": "ui-components",
+    "kind": "agent",
+    "label": "Task 8: Core UI Components",
+    "taskDefRef": "tasks/01KQ5540YGHYGTJF0JHMZQHZ9H/task.json"
+  },
+  "checksum": "fd06195a029fed260f7f5a350a8c6b03e6c9e6a832e9f370fd48460c41713b31"
+}

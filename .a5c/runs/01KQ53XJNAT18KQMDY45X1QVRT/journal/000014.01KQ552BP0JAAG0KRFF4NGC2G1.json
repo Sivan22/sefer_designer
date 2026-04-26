@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T15:03:31.265Z",
+  "data": {
+    "effectId": "01KQ552BNBNMB1BJ58CBH9BK3K",
+    "invocationKey": "pdf-formatter-clone:S000007:hooks",
+    "invocationHash": "0ed638cf9f6897c8dd1873fb63c3cb9b641cf3923b5408a6efdfcec3373411fb",
+    "stepId": "S000007",
+    "taskId": "hooks",
+    "kind": "agent",
+    "label": "Task 7: Hooks",
+    "taskDefRef": "tasks/01KQ552BNBNMB1BJ58CBH9BK3K/task.json"
+  },
+  "checksum": "a3868230b2e4e5fdeb36046a78227bf4f4287ed2ab0dadae66fb24a1632a1bd8"
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "2026.01.results-v1",
+  "effectId": "01KQ54RK5ZGVSWT65QFJEY2P4T",
+  "taskId": "shadcn-components",
+  "invocationKey": "pdf-formatter-clone:S000003:shadcn-components",
+  "status": "ok",
+  "result": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/lib/utils.ts",
+      "src/components/ui/button.tsx",
+      "src/components/ui/progress.tsx",
+      "src/components/ui/tooltip.tsx",
+      "src/components/ui/use-toast.ts",
+      "src/components/ui/toaster.tsx"
+    ]
+  },
+  "startedAt": "2026-04-26T14:59:35.391Z",
+  "finishedAt": "2026-04-26T14:59:35.391Z",
+  "value": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/lib/utils.ts",
+      "src/components/ui/button.tsx",
+      "src/components/ui/progress.tsx",
+      "src/components/ui/tooltip.tsx",
+      "src/components/ui/use-toast.ts",
+      "src/components/ui/toaster.tsx"
+    ]
+  }
+}

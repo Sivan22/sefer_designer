@@ -1,0 +1,58 @@
+{
+  "agent": {
+    "name": "general-purpose",
+    "outputSchema": {
+      "properties": {
+        "buildPassed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "filesCreated": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "filesCreated",
+        "buildPassed"
+      ],
+      "type": "object"
+    },
+    "prompt": {
+      "context": {
+        "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+      },
+      "instructions": [
+        "Read the plan at docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "Execute ONLY Task 6 step by step",
+        "Create src/lib/classify-refs.ts exactly as shown in the plan",
+        "Create src/lib/pdf-export.ts exactly as shown in the plan",
+        "Run: npx tsc --noEmit and fix TS errors in these files",
+        "Commit with message: feat: classify-refs and pdf-export library functions",
+        "Return summary"
+      ],
+      "outputFormat": "JSON with fields: filesCreated (array), buildPassed (boolean), errors (array)",
+      "role": "Senior TypeScript engineer",
+      "task": "Execute Task 6 from the implementation plan: Classify Refs + PDF Export Library Functions"
+    }
+  },
+  "kind": "agent",
+  "title": "Task 6: Classify Refs + PDF Export Libs",
+  "schemaVersion": "2026.01.tasks-v1",
+  "effectId": "01KQ550NDBKKBH8VZD8D0X2S3W",
+  "taskId": "lib-functions",
+  "invocationKey": "pdf-formatter-clone:S000006:lib-functions",
+  "stepId": "S000006",
+  "inputs": {
+    "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+    "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+  }
+}

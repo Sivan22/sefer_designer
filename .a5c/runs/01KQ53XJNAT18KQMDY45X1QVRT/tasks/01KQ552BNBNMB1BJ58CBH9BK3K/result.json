@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "2026.01.results-v1",
+  "effectId": "01KQ552BNBNMB1BJ58CBH9BK3K",
+  "taskId": "hooks",
+  "invocationKey": "pdf-formatter-clone:S000007:hooks",
+  "status": "ok",
+  "result": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/hooks/useDocumentLoader.ts",
+      "src/hooks/useExport.ts"
+    ]
+  },
+  "startedAt": "2026-04-26T15:04:25.024Z",
+  "finishedAt": "2026-04-26T15:04:25.024Z",
+  "value": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/hooks/useDocumentLoader.ts",
+      "src/hooks/useExport.ts"
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "agent": {
+    "name": "general-purpose",
+    "outputSchema": {
+      "properties": {
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "filesCreated": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "filesCreated"
+      ],
+      "type": "object"
+    },
+    "prompt": {
+      "context": {
+        "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+      },
+      "instructions": [
+        "Read the plan at docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "Execute ONLY Task 2 step by step",
+        "Create src/types/document.ts with all types shown in the plan",
+        "Create src/lib/supabase.ts with the Supabase client exactly as shown",
+        "Commit with message: feat: add types and supabase client",
+        "Return summary of files created"
+      ],
+      "outputFormat": "JSON with fields: filesCreated (array), errors (array)",
+      "role": "Senior TypeScript engineer",
+      "task": "Execute Task 2 from the implementation plan: Types + Supabase Client"
+    }
+  },
+  "kind": "agent",
+  "title": "Task 2: Types + Supabase Client",
+  "schemaVersion": "2026.01.tasks-v1",
+  "effectId": "01KQ54PG4KDSYFYKHF1XFS6MXE",
+  "taskId": "types-and-supabase",
+  "invocationKey": "pdf-formatter-clone:S000002:types-and-supabase",
+  "stepId": "S000002",
+  "inputs": {
+    "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+    "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T14:43:36.478Z",
+  "data": {
+    "effectId": "01KQ53XWW5EMVCPPYGDA8GCW78",
+    "invocationKey": "pdf-formatter-clone:S000001:scaffold",
+    "invocationHash": "4d03abc0979cc33a3adfe0d0fe31d0c1b367cd496f7838df5f8bd7f388519019",
+    "stepId": "S000001",
+    "taskId": "scaffold",
+    "kind": "agent",
+    "label": "Task 1: Project Scaffold",
+    "taskDefRef": "tasks/01KQ53XWW5EMVCPPYGDA8GCW78/task.json"
+  },
+  "checksum": "35811120511bbde37aee0aa451157c0769cf4ac0b6420099c478d9f2606ee006"
+}

@@ -1,0 +1,63 @@
+{
+  "agent": {
+    "name": "general-purpose",
+    "outputSchema": {
+      "properties": {
+        "buildPassed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "filesCreated": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "filesCreated",
+        "buildPassed"
+      ],
+      "type": "object"
+    },
+    "prompt": {
+      "context": {
+        "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+      },
+      "instructions": [
+        "Read the plan at docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "Execute ONLY Task 8 step by step",
+        "Create src/components/UploadZone.tsx",
+        "Create src/components/ChapterHeader.tsx",
+        "Create src/components/FootnotesSection.tsx",
+        "Create src/components/PageSurface.tsx",
+        "Create src/components/SpreadView.tsx",
+        "All files must match the plan exactly",
+        "Run: npx tsc --noEmit and fix any TS errors",
+        "Run: npm run build and confirm it passes",
+        "Commit with message: feat: upload zone, chapter header, footnotes, page surface, spread view",
+        "Return summary with list of files created and build status"
+      ],
+      "outputFormat": "JSON with fields: filesCreated (array), buildPassed (boolean), errors (array)",
+      "role": "Senior React/TypeScript engineer",
+      "task": "Execute Task 8 from the implementation plan: Core UI Components"
+    }
+  },
+  "kind": "agent",
+  "title": "Task 8: Core UI Components",
+  "schemaVersion": "2026.01.tasks-v1",
+  "effectId": "01KQ5540YGHYGTJF0JHMZQHZ9H",
+  "taskId": "ui-components",
+  "invocationKey": "pdf-formatter-clone:S000008:ui-components",
+  "stepId": "S000008",
+  "inputs": {
+    "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+    "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T15:02:35.715Z",
+  "data": {
+    "effectId": "01KQ550NDBKKBH8VZD8D0X2S3W",
+    "invocationKey": "pdf-formatter-clone:S000006:lib-functions",
+    "invocationHash": "66d37ecc688b05fe40afc3497838aac7dcdd5f0f77ba5ac75db624839eafb687",
+    "stepId": "S000006",
+    "taskId": "lib-functions",
+    "kind": "agent",
+    "label": "Task 6: Classify Refs + PDF Export Libs",
+    "taskDefRef": "tasks/01KQ550NDBKKBH8VZD8D0X2S3W/task.json"
+  },
+  "checksum": "ef8d1e8309ba43a00c0090c081c945cc12861a0792a6e033e98454f2d70e1e65"
+}

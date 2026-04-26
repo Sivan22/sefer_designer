@@ -1,0 +1,67 @@
+{
+  "agent": {
+    "name": "general-purpose",
+    "outputSchema": {
+      "properties": {
+        "buildPassed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "filesCreated": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "filesCreated",
+        "buildPassed"
+      ],
+      "type": "object"
+    },
+    "prompt": {
+      "context": {
+        "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer",
+        "task": "scaffold"
+      },
+      "instructions": [
+        "Read the plan at docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+        "Execute ONLY Task 1 (Project Scaffold) step by step",
+        "Run: cd /mnt/volume_sfo3_01/captured_sefer_designer && npm create vite@latest . -- --template react-ts --force",
+        "Run: npm install react-router-dom @supabase/supabase-js mammoth jspdf html2canvas jszip pdfjs-dist",
+        "Run: npm install class-variance-authority clsx tailwind-merge lucide-react sonner",
+        "Run: npm install -D tailwindcss postcss autoprefixer @types/node @radix-ui/react-tooltip",
+        "Run: npx tailwindcss init -p",
+        "Write vite.config.ts exactly as shown in the plan",
+        "Write tailwind.config.ts exactly as shown in the plan",
+        "Write src/index.css exactly as shown in the plan",
+        "Write index.html exactly as shown in the plan",
+        "Write src/main.tsx exactly as shown in the plan",
+        "Run: npm run build and verify it succeeds",
+        "Git init and commit",
+        "Return summary of what was created and whether build passed"
+      ],
+      "outputFormat": "JSON with fields: filesCreated (array), buildPassed (boolean), errors (array)",
+      "role": "Senior React/TypeScript engineer",
+      "task": "Execute Task 1 from the implementation plan: Project Scaffold"
+    }
+  },
+  "kind": "agent",
+  "title": "Task 1: Project Scaffold",
+  "schemaVersion": "2026.01.tasks-v1",
+  "effectId": "01KQ53XWW5EMVCPPYGDA8GCW78",
+  "taskId": "scaffold",
+  "invocationKey": "pdf-formatter-clone:S000001:scaffold",
+  "stepId": "S000001",
+  "inputs": {
+    "planPath": "docs/superpowers/plans/2026-04-26-pdf-formatter-clone.md",
+    "projectDir": "/mnt/volume_sfo3_01/captured_sefer_designer"
+  }
+}

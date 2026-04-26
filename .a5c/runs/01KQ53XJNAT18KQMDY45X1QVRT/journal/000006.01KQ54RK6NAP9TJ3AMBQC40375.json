@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T14:58:11.285Z",
+  "data": {
+    "effectId": "01KQ54RK5ZGVSWT65QFJEY2P4T",
+    "invocationKey": "pdf-formatter-clone:S000003:shadcn-components",
+    "invocationHash": "484b05596461b6c4641201e116b4ac727cae5662b260cfbd0de7d7b594f77405",
+    "stepId": "S000003",
+    "taskId": "shadcn-components",
+    "kind": "agent",
+    "label": "Task 3: shadcn UI Components",
+    "taskDefRef": "tasks/01KQ54RK5ZGVSWT65QFJEY2P4T/task.json"
+  },
+  "checksum": "176ac62cd06c83d74955b43b12d7c59a73c42f4fe3cfe35314b9861eb85c77e0"
+}

@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T15:01:08.285Z",
+  "data": {
+    "effectId": "01KQ54Y0173PPXY7KXJYGMFB9X",
+    "invocationKey": "pdf-formatter-clone:S000005:layout-engine",
+    "invocationHash": "8818029e48c06d396e7d70bfbe94ff1a7db3e3e34657055552560a698edc6526",
+    "stepId": "S000005",
+    "taskId": "layout-engine",
+    "kind": "agent",
+    "label": "Task 5: Document Layout Engine",
+    "taskDefRef": "tasks/01KQ54Y0173PPXY7KXJYGMFB9X/task.json"
+  },
+  "checksum": "4138513a5969e45d97e936b8cc5afda44a4550b640fe83b9d53340350c9899a0"
+}

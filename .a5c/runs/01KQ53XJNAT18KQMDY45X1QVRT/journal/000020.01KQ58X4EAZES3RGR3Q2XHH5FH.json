@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T16:10:34.314Z",
+  "data": {
+    "effectId": "01KQ58X4DNJS5MVCT10Z34DJ31",
+    "invocationKey": "pdf-formatter-clone:S000010:pages",
+    "invocationHash": "d725a075d104a60b514ffc094209948929aaf3af3d8541e9a29448c9659b10fe",
+    "stepId": "S000010",
+    "taskId": "pages",
+    "kind": "agent",
+    "label": "Task 10: Pages + App Router",
+    "taskDefRef": "tasks/01KQ58X4DNJS5MVCT10Z34DJ31/task.json"
+  },
+  "checksum": "7551c2368e3fa9b36bfd1d615267eb6b052078bcaedcdf8725e9e255c4cdf3b3"
+}

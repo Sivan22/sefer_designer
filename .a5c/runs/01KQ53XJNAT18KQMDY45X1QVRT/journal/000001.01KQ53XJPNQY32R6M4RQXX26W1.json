@@ -1,0 +1,14 @@
+{
+  "type": "RUN_CREATED",
+  "recordedAt": "2026-04-26T14:43:26.037Z",
+  "data": {
+    "runId": "01KQ53XJNAT18KQMDY45X1QVRT",
+    "processId": "pdf-formatter-clone",
+    "entrypoint": {
+      "importPath": "../../processes/pdf-formatter-clone.js",
+      "exportName": "process"
+    },
+    "inputsRef": "inputs.json"
+  },
+  "checksum": "f328b16f2edd30987cdf875972e4db4612e9279bf79dc9311b2027097b006bd5"
+}

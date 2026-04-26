@@ -1,0 +1,13 @@
+{
+  "runId": "01KQ53XJNAT18KQMDY45X1QVRT",
+  "request": "pdf-formatter-clone",
+  "processId": "pdf-formatter-clone",
+  "entrypoint": {
+    "importPath": "../../processes/pdf-formatter-clone.js",
+    "exportName": "process"
+  },
+  "processPath": "../../processes/pdf-formatter-clone.js",
+  "layoutVersion": "2026.01-storage-preview",
+  "createdAt": "2026-04-26T14:43:26.020Z",
+  "completionProof": "1f6186dd7f2086031fbd16cf2b89d8da"
+}

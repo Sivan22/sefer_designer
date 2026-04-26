@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "2026.01.results-v1",
+  "effectId": "01KQ5540YGHYGTJF0JHMZQHZ9H",
+  "taskId": "ui-components",
+  "invocationKey": "pdf-formatter-clone:S000008:ui-components",
+  "status": "ok",
+  "result": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/components/UploadZone.tsx",
+      "src/components/ChapterHeader.tsx",
+      "src/components/FootnotesSection.tsx",
+      "src/components/PageSurface.tsx",
+      "src/components/SpreadView.tsx"
+    ]
+  },
+  "startedAt": "2026-04-26T16:09:38.157Z",
+  "finishedAt": "2026-04-26T16:09:38.157Z",
+  "value": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/components/UploadZone.tsx",
+      "src/components/ChapterHeader.tsx",
+      "src/components/FootnotesSection.tsx",
+      "src/components/PageSurface.tsx",
+      "src/components/SpreadView.tsx"
+    ]
+  }
+}

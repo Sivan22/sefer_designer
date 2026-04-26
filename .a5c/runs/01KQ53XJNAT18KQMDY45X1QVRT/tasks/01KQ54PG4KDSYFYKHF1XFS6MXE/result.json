@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "2026.01.results-v1",
+  "effectId": "01KQ54PG4KDSYFYKHF1XFS6MXE",
+  "taskId": "types-and-supabase",
+  "invocationKey": "pdf-formatter-clone:S000002:types-and-supabase",
+  "status": "ok",
+  "result": {
+    "errors": [],
+    "filesCreated": [
+      "src/types/document.ts",
+      "src/lib/supabase.ts"
+    ]
+  },
+  "startedAt": "2026-04-26T14:58:06.124Z",
+  "finishedAt": "2026-04-26T14:58:06.124Z",
+  "value": {
+    "errors": [],
+    "filesCreated": [
+      "src/types/document.ts",
+      "src/lib/supabase.ts"
+    ]
+  }
+}

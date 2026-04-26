@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "2026.01.results-v1",
+  "effectId": "01KQ54V9R1GGWHW7M7EWAX1H7V",
+  "taskId": "mammoth-parser",
+  "invocationKey": "pdf-formatter-clone:S000004:mammoth-parser",
+  "status": "ok",
+  "result": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/lib/mammoth-parser.ts"
+    ]
+  },
+  "startedAt": "2026-04-26T15:01:03.881Z",
+  "finishedAt": "2026-04-26T15:01:03.881Z",
+  "value": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/lib/mammoth-parser.ts"
+    ]
+  }
+}

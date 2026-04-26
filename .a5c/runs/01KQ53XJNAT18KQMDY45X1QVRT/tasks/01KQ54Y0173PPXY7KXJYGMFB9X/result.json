@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "2026.01.results-v1",
+  "effectId": "01KQ54Y0173PPXY7KXJYGMFB9X",
+  "taskId": "layout-engine",
+  "invocationKey": "pdf-formatter-clone:S000005:layout-engine",
+  "status": "ok",
+  "result": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/lib/document-layout.ts"
+    ]
+  },
+  "startedAt": "2026-04-26T15:02:30.306Z",
+  "finishedAt": "2026-04-26T15:02:30.306Z",
+  "value": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/lib/document-layout.ts"
+    ]
+  }
+}

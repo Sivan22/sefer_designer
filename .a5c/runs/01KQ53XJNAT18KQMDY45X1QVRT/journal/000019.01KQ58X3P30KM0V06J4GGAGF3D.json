@@ -1,0 +1,12 @@
+{
+  "type": "EFFECT_RESOLVED",
+  "recordedAt": "2026-04-26T16:10:33.539Z",
+  "data": {
+    "effectId": "01KQ58VEE80MPSEAM899Q97JME",
+    "status": "ok",
+    "resultRef": "tasks/01KQ58VEE80MPSEAM899Q97JME/result.json",
+    "startedAt": "2026-04-26T16:10:33.510Z",
+    "finishedAt": "2026-04-26T16:10:33.510Z"
+  },
+  "checksum": "5e2bc707460dc3169562ea96234fd71d969a8091df37a68996851f1f7d17bec5"
+}

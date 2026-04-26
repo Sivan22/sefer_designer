@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T16:09:39.038Z",
+  "data": {
+    "effectId": "01KQ58VEE80MPSEAM899Q97JME",
+    "invocationKey": "pdf-formatter-clone:S000009:toolbar",
+    "invocationHash": "f729939b1c36c0d447eacb2c5853252eca26dbe56a5dfea1ad365df621fe8df7",
+    "stepId": "S000009",
+    "taskId": "toolbar",
+    "kind": "agent",
+    "label": "Task 9: Toolbar Component",
+    "taskDefRef": "tasks/01KQ58VEE80MPSEAM899Q97JME/task.json"
+  },
+  "checksum": "000d788bd0514141d3070f0bba0e1092423b603e5069b34a7532141fa53fa125"
+}

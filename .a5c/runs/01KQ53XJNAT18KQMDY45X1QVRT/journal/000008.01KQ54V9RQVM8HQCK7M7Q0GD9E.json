@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T14:59:39.927Z",
+  "data": {
+    "effectId": "01KQ54V9R1GGWHW7M7EWAX1H7V",
+    "invocationKey": "pdf-formatter-clone:S000004:mammoth-parser",
+    "invocationHash": "c49e8cba6de3b0fadf63e6cd6c0553796bc4be7f64a2e37534ba2f934b573c3c",
+    "stepId": "S000004",
+    "taskId": "mammoth-parser",
+    "kind": "agent",
+    "label": "Task 4: Mammoth Parser",
+    "taskDefRef": "tasks/01KQ54V9R1GGWHW7M7EWAX1H7V/task.json"
+  },
+  "checksum": "108dbc36994e68d42bb6c8060146684b7e8f0070545e53c9a8c5614ef6c0e3cc"
+}

@@ -1,0 +1,15 @@
+{
+  "type": "EFFECT_REQUESTED",
+  "recordedAt": "2026-04-26T14:57:02.632Z",
+  "data": {
+    "effectId": "01KQ54PG4KDSYFYKHF1XFS6MXE",
+    "invocationKey": "pdf-formatter-clone:S000002:types-and-supabase",
+    "invocationHash": "d6ce11ef72939db4f468ea6c6f8b3ed293c24215820af27670db797f171fcf39",
+    "stepId": "S000002",
+    "taskId": "types-and-supabase",
+    "kind": "agent",
+    "label": "Task 2: Types + Supabase Client",
+    "taskDefRef": "tasks/01KQ54PG4KDSYFYKHF1XFS6MXE/task.json"
+  },
+  "checksum": "a8a414f98fc33123f5a4312801cf77ac72b6acfade08330423fe9f51a83bb3a5"
+}

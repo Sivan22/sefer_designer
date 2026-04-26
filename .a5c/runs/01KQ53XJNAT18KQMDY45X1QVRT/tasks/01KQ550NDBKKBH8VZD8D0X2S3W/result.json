@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "2026.01.results-v1",
+  "effectId": "01KQ550NDBKKBH8VZD8D0X2S3W",
+  "taskId": "lib-functions",
+  "invocationKey": "pdf-formatter-clone:S000006:lib-functions",
+  "status": "ok",
+  "result": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/lib/classify-refs.ts",
+      "src/lib/pdf-export.ts"
+    ]
+  },
+  "startedAt": "2026-04-26T15:03:30.410Z",
+  "finishedAt": "2026-04-26T15:03:30.410Z",
+  "value": {
+    "buildPassed": true,
+    "errors": [],
+    "filesCreated": [
+      "src/lib/classify-refs.ts",
+      "src/lib/pdf-export.ts"
+    ]
+  }
+}
