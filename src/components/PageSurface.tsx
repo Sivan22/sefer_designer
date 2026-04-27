@@ -125,36 +125,35 @@ export function PageSurface({
         {!notesOnly && <div className="flex-1" />}
 
         {hasFootnotes && (
-          <FootnotesSection
-            torahFootnotes={page.torahFootnotes}
-            storyFootnotes={page.storyFootnotes}
-            layout={page.footnotesLayout}
-            sourceHighlight={sourceHighlight}
-            sourceReduce={sourceReduce}
-          />
+          <div className="relative flex-shrink-0">
+            <FootnotesSection
+              torahFootnotes={page.torahFootnotes}
+              storyFootnotes={page.storyFootnotes}
+              layout={page.footnotesLayout}
+              sourceHighlight={sourceHighlight}
+              sourceReduce={sourceReduce}
+            />
+            {/* Drag handle — overlays the body/notes separator line on the
+                FootnotesSection's top edge. Always shows the line; on hover
+                the cursor becomes ns-resize and the line darkens / thickens. */}
+            {draggable && (
+              <div
+                onPointerDown={handlePointerDown}
+                className="absolute inset-x-0 cursor-ns-resize group z-20"
+                style={{ top: -6, height: 12 }}
+              >
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 transition-all"
+                     style={{ height: 1, background: 'rgba(0,0,0,0)' }} />
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                     style={{ background: 'rgba(0,0,0,0.5)' }} />
+              </div>
+            )}
+          </div>
         )}
 
         {notesOnly && <div className="flex-1" />}
       </div>
 
-      {/* Drag handle — invisible strip overlaying the body/notes divider line.
-          Hover hint + visual guide line during drag. Only rendered on pages
-          that have both body and footnotes (a real divider). */}
-      {draggable && (
-        <div
-          onPointerDown={handlePointerDown}
-          className="absolute group cursor-ns-resize z-20"
-          style={{
-            top: MARGIN_T + headerH + page.calculatedMainHeight - 5,
-            left: MARGIN_O,
-            right: MARGIN_I,
-            height: 10,
-          }}
-        >
-          <div className="w-full h-full opacity-0 group-hover:opacity-100 transition-opacity"
-               style={{ background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.08), transparent)' }} />
-        </div>
-      )}
       {draggable && (
         <div
           ref={guideRef}
