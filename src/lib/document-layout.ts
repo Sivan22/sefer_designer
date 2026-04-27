@@ -734,7 +734,7 @@ export async function layoutDocument(
 
 function makePage(
   pageNum: number,
-  chunks: TextChunk[],
+  chunks: ChunkWithMeta[],
   meta: { chapterNumber?: string; chapterTitle?: string; subtitle?: string },
   headerH: number,
   fit: FitResult,
