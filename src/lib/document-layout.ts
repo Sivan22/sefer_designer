@@ -313,7 +313,7 @@ function fitFootnotes(
   if (!torah.length || !story.length) {
     const notes    = torah.length ? torah : story
     const fontClass = torah.length ? 'font-shefa' : 'font-frank'
-    const sizeClass = torah.length ? 'text-[11pt] leading-snug' : 'text-[8.5pt] leading-relaxed'
+    const sizeClass = torah.length ? 'text-[11.5pt] leading-snug' : 'text-[8pt] leading-relaxed'
     const layout: FootnotesLayout = torah.length ? 'single-torah' : 'single-story'
 
     const { fitted, overflow } = fitColumnMulti(notes, availForCols, COL_W, fontClass, sizeClass, true)
@@ -332,13 +332,13 @@ function fitFootnotes(
 
   // ── Dual-source ────────────────────────────────────────────────────────────
   const { fitted: tFitted, overflow: tOverflow } =
-    fitColumnMulti(torah, availForCols, COL_W, 'font-shefa', 'text-[11pt] leading-snug', false)
+    fitColumnMulti(torah, availForCols, COL_W, 'font-shefa', 'text-[11.5pt] leading-snug', false)
   const { fitted: sFitted, overflow: sOverflow } =
-    fitColumnMulti(story, availForCols, COL_W, 'font-frank', 'text-[8.5pt] leading-relaxed', false)
+    fitColumnMulti(story, availForCols, COL_W, 'font-frank', 'text-[8pt] leading-relaxed', false)
 
   // Measured heights of fitted content determine which column is taller → float direction
-  const torahH = measureColumnItems(tFitted, COL_W, 'font-shefa', 'text-[11pt] leading-snug')
-  const storyH = measureColumnItems(sFitted, COL_W, 'font-frank', 'text-[8.5pt] leading-relaxed')
+  const torahH = measureColumnItems(tFitted, COL_W, 'font-shefa', 'text-[11.5pt] leading-snug')
+  const storyH = measureColumnItems(sFitted, COL_W, 'font-frank', 'text-[8pt] leading-relaxed')
   // Always use float layout for dual-source; direction by measured height (torah wins ties)
   const layout: FootnotesLayout = torahH >= storyH ? 'float-torah' : 'float-story'
   const totalHeight = COL_HEADER_H + Math.max(torahH, storyH)

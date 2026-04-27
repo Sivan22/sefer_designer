@@ -103,7 +103,7 @@
 /* Text styles */
 .main-text {
   text-align: justify;
-  text-align-last: right;
+  text-align-last: justify;
   text-justify: inter-word;
   direction: rtl;
   unicode-bidi: plaintext;
@@ -132,7 +132,7 @@
   break-inside: avoid;
   font-size: 10pt;
   text-align: justify;
-  text-align-last: right;
+  text-align-last: justify;
   text-justify: inter-word;
   direction: rtl;
   unicode-bidi: plaintext;
