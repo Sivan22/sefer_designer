@@ -94,7 +94,7 @@ export function FootnotesSection({
     //   צינור השפע (torah) → Shefa
     //   מקור השפע  (story) → Frank
     const font = isTorah ? 'font-shefa' : 'font-frank'
-    const size = isTorah ? 'text-[11.5pt] leading-snug' : 'text-[8pt] leading-relaxed'
+    const size = isTorah ? 'text-[12.5pt] leading-snug' : 'text-[7.5pt] leading-relaxed'
     return (
       <div className="border-t border-black/15 pt-3">
         <ColumnDivider label={label} />
@@ -116,13 +116,13 @@ export function FootnotesSection({
           <div>
             <ColumnDivider label={torahColumnName} />
             <div className="space-y-2">
-              {torahFootnotes.map(f => <FN key={f.id} f={f} font="font-shefa" size="text-[11.5pt] leading-snug" hl={sourceHighlight} rd={sourceReduce} />)}
+              {torahFootnotes.map(f => <FN key={f.id} f={f} font="font-shefa" size="text-[12.5pt] leading-snug" hl={sourceHighlight} rd={sourceReduce} />)}
             </div>
           </div>
           <div>
             <ColumnDivider label={storyColumnName} />
             <div className="space-y-2">
-              {storyFootnotes.map(f => <FN key={f.id} f={f} font="font-frank" size="text-[8pt] leading-relaxed" hl={sourceHighlight} rd={sourceReduce} />)}
+              {storyFootnotes.map(f => <FN key={f.id} f={f} font="font-frank" size="text-[7.5pt] leading-relaxed" hl={sourceHighlight} rd={sourceReduce} />)}
             </div>
           </div>
         </div>
@@ -143,14 +143,14 @@ export function FootnotesSection({
   //   story column → font-frank @ 9pt
   const floatItems = torahIsTaller ? storyFootnotes : torahFootnotes  // shorter
   const floatFont  = torahIsTaller ? 'font-frank' : 'font-shefa'
-  const floatSize  = torahIsTaller ? 'text-[8pt] leading-relaxed' : 'text-[11.5pt] leading-snug'
+  const floatSize  = torahIsTaller ? 'text-[7.5pt] leading-relaxed' : 'text-[12.5pt] leading-snug'
   // RTL: torah always physical-right.
   // torahIsTaller → story (shorter) on left → floats LEFT
   // !torahIsTaller → torah (shorter) on right → floats RIGHT
   const floatSide  = torahIsTaller ? 'left' : 'right'
   const wrapItems  = torahIsTaller ? torahFootnotes : storyFootnotes   // longer
   const wrapFont   = torahIsTaller ? 'font-shefa' : 'font-frank'
-  const wrapSize   = torahIsTaller ? 'text-[11.5pt] leading-snug' : 'text-[8pt] leading-relaxed'
+  const wrapSize   = torahIsTaller ? 'text-[12.5pt] leading-snug' : 'text-[7.5pt] leading-relaxed'
 
   const floatStyle: React.CSSProperties = {
     float: floatSide,
