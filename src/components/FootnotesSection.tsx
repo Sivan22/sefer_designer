@@ -89,8 +89,11 @@ export function FootnotesSection({
     const isTorah = layout === 'single-torah'
     const items = isTorah ? torahFootnotes : storyFootnotes
     const label = isTorah ? torahColumnName : storyColumnName
-    const font = isTorah ? 'font-frank' : 'font-shefa'
-    const size = isTorah ? 'text-[10pt] leading-relaxed' : 'text-[11pt] leading-snug'
+    // Fonts swapped to match example.pdf:
+    //   צינור השפע (torah) → Shefa
+    //   מקור השפע  (story) → Frank
+    const font = isTorah ? 'font-shefa' : 'font-frank'
+    const size = isTorah ? 'text-[10.5pt] leading-snug' : 'text-[9pt] leading-relaxed'
     return (
       <div className="border-t border-black/15 pt-3">
         <ColumnDivider label={label} />
@@ -112,13 +115,13 @@ export function FootnotesSection({
           <div>
             <ColumnDivider label={torahColumnName} />
             <div className="space-y-2">
-              {torahFootnotes.map(f => <FN key={f.id} f={f} font="font-frank" size="text-[10pt] leading-relaxed" hl={sourceHighlight} rd={sourceReduce} />)}
+              {torahFootnotes.map(f => <FN key={f.id} f={f} font="font-shefa" size="text-[10.5pt] leading-snug" hl={sourceHighlight} rd={sourceReduce} />)}
             </div>
           </div>
           <div>
             <ColumnDivider label={storyColumnName} />
             <div className="space-y-2">
-              {storyFootnotes.map(f => <FN key={f.id} f={f} font="font-shefa" size="text-[11pt] leading-snug" hl={sourceHighlight} rd={sourceReduce} />)}
+              {storyFootnotes.map(f => <FN key={f.id} f={f} font="font-frank" size="text-[9pt] leading-relaxed" hl={sourceHighlight} rd={sourceReduce} />)}
             </div>
           </div>
         </div>
@@ -134,16 +137,19 @@ export function FootnotesSection({
   // it would sit beside the float instead of wrapping it.
   if (!isFloat) return null
   const torahIsTaller = layout === 'float-torah'
+  // Font assignments after swap:
+  //   torah column → font-shefa @ 10.5pt
+  //   story column → font-frank @ 9pt
   const floatItems = torahIsTaller ? storyFootnotes : torahFootnotes  // shorter
-  const floatFont  = torahIsTaller ? 'font-shefa' : 'font-frank'
-  const floatSize  = torahIsTaller ? 'text-[11pt] leading-snug' : 'text-[10pt] leading-relaxed'
+  const floatFont  = torahIsTaller ? 'font-frank' : 'font-shefa'
+  const floatSize  = torahIsTaller ? 'text-[9pt] leading-relaxed' : 'text-[10.5pt] leading-snug'
   // RTL: torah always physical-right.
   // torahIsTaller → story (shorter) on left → floats LEFT
   // !torahIsTaller → torah (shorter) on right → floats RIGHT
   const floatSide  = torahIsTaller ? 'left' : 'right'
   const wrapItems  = torahIsTaller ? torahFootnotes : storyFootnotes   // longer
-  const wrapFont   = torahIsTaller ? 'font-frank' : 'font-shefa'
-  const wrapSize   = torahIsTaller ? 'text-[10pt] leading-relaxed' : 'text-[11pt] leading-snug'
+  const wrapFont   = torahIsTaller ? 'font-shefa' : 'font-frank'
+  const wrapSize   = torahIsTaller ? 'text-[10.5pt] leading-snug' : 'text-[9pt] leading-relaxed'
 
   const floatStyle: React.CSSProperties = {
     float: floatSide,

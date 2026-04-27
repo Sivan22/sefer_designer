@@ -32,7 +32,7 @@ export function RunningHeader({
   // page edges → symmetric mirror layout. Chapter / section caption is dead-
   // centre. The page number lives outside everything in the far-left corner.
   const bigTitleStyle: React.CSSProperties = {
-    fontSize: '20pt', lineHeight: 1, letterSpacing: '0.04em',
+    fontSize: '18pt', lineHeight: 1, letterSpacing: '0.04em',
   }
   const edgeInset = 30  // px from each outer edge — same on both sides.
   return (
@@ -42,8 +42,8 @@ export function RunningHeader({
     >
       {/* Page number — far outside corner */}
       <span
-        className="absolute bottom-3 font-vilna text-black"
-        style={{ fontSize: '11pt', lineHeight: 1, left: 0, direction: 'ltr' }}
+        className="absolute bottom-3 font-vilna font-bold text-black"
+        style={{ fontSize: '12.8pt', lineHeight: 1, left: 0, direction: 'ltr' }}
       >
         {hebrewPageNumber(pageNumber)}
       </span>
@@ -52,7 +52,7 @@ export function RunningHeader({
       <span
         className="absolute bottom-3 font-vilna text-black/80 whitespace-nowrap"
         style={{
-          fontSize: '10pt',
+          fontSize: '11.56pt',
           lineHeight: 1.2,
           left: '50%',
           transform: 'translateX(-50%)',

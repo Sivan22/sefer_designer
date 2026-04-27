@@ -10,7 +10,7 @@ import { ViewMode } from '@/types/document'
 import { toast } from 'sonner'
 
 export default function Index() {
-  const { doc, state, statusMsg, error, loadFile, reset } = useDocumentLoader()
+  const { doc, state, statusMsg, error, loadFile, reset, setBodyHeight, reflowing } = useDocumentLoader()
   const { progress, status, isExporting, doExport } = useExport()
   const [viewMode, setViewMode] = useState<ViewMode>('spread')
   const [sourceHighlight, setSourceHighlight] = useState(false)
@@ -90,6 +90,7 @@ export default function Index() {
                 showMarginGuide={showMarginGuide}
                 sourceHighlight={sourceHighlight}
                 sourceReduce={sourceReduce}
+                onBodyHeightChange={setBodyHeight}
               />
             ))}
           </div>
@@ -108,11 +109,18 @@ export default function Index() {
                 showMarginGuide={showMarginGuide}
                 sourceHighlight={sourceHighlight}
                 sourceReduce={sourceReduce}
+                onBodyHeightChange={setBodyHeight}
               />
             ))}
           </div>
         )}
       </main>
+
+      {reflowing && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-md bg-foreground/80 text-background text-sm pointer-events-none z-50">
+          מסדר עמודים...
+        </div>
+      )}
     </div>
   )
 }
