@@ -42,6 +42,7 @@ function ColumnDivider({ label }: { label: string }) {
 function itemCls(f: FootnoteItem, font: string, size: string, hl?: boolean, rd?: boolean) {
   return [
     'footnote-item text-black', font, size,
+    f.isSplitHead ? 'split-head' : '',
     f.isSource && hl ? 'source-ref-highlight' : '',
     f.isSource && rd ? 'source-ref-reduce' : '',
   ].filter(Boolean).join(' ')

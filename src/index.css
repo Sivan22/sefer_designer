@@ -103,7 +103,7 @@
 /* Text styles */
 .main-text {
   text-align: justify;
-  text-align-last: justify;
+  text-align-last: right;
   text-justify: inter-word;
   direction: rtl;
   unicode-bidi: plaintext;
@@ -116,6 +116,13 @@
    so a paragraph that spans multiple chunks reads as one paragraph. */
 .main-text p { margin: 0; padding: 0; }
 .main-text p + p { text-indent: 0; }
+/* Block whose last line is an artificial mid-paragraph break (the head of a
+   chunk split across pages): justify the last line so it reaches the column
+   edge — the visual cue that the paragraph continues onto the next page. */
+.main-text p.split-head,
+.main-text h1.split-head,
+.main-text h2.split-head,
+.footnote-item.split-head { text-align-last: justify; }
 /* Sub-section topic header: <p><strong>…:</strong></p> in the source becomes
    a mini-headline above the next paragraph (matches example.pdf). */
 .main-text p.topic-header { margin-top: 0.6rem; margin-bottom: 0.2rem; }
@@ -132,7 +139,7 @@
   break-inside: avoid;
   font-size: 10pt;
   text-align: justify;
-  text-align-last: justify;
+  text-align-last: right;
   text-justify: inter-word;
   direction: rtl;
   unicode-bidi: plaintext;

@@ -14,6 +14,7 @@ export interface FootnoteItem {
   formattedContent: string
   isSource?: boolean
   isContinuation?: boolean  // tail of a split note — no marker shown
+  isSplitHead?: boolean     // head of a split note — last line justifies to the column edge
 }
 
 export interface PageSection {

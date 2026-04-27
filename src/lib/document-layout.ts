@@ -207,8 +207,8 @@ function splitNoteAtHeight(
   if (!tailHtml.trim()) return null
 
   return {
-    head: { ...note, id: note.id + '-head', formattedContent: headHtml },
-    tail: { ...note, id: note.id + '-cont', formattedContent: tailHtml, isContinuation: true },
+    head: { ...note, id: note.id + '-head', formattedContent: headHtml, isSplitHead: true, isContinuation: false },
+    tail: { ...note, id: note.id + '-cont', formattedContent: tailHtml, isContinuation: true, isSplitHead: false },
   }
 }
 
@@ -352,28 +352,36 @@ type ChunkWithMeta = TextChunk & {
   chapterTitle?: string
   subtitle?: string
   isFirstInChapter: boolean
+  // Head of a chunk that was split mid-paragraph because it didn't fit on the
+  // page. The merged block element gets a `split-head` class so its last line
+  // justifies to the column edge (visual cue that the paragraph continues).
+  isSplitHead?: boolean
 }
 
 // Merge consecutive sub-chunks from the same source paragraph into a single
 // block element so the body reads as one paragraph (no break after sentence
 // punctuation). Different paragraphs / headings keep their own elements.
-function joinChunks(chunks: TextChunk[]): string {
+function joinChunks(chunks: ChunkWithMeta[]): string {
   if (chunks.length === 0) return ''
-  const groups: { tag: string; cls?: string; parts: string[] }[] = []
+  type Group = { tag: string; cls?: string; parts: string[]; splitHead: boolean }
+  const groups: Group[] = []
   let lastParaId = ''
   for (const c of chunks) {
     const paraId = c.paragraphId ?? c.id
     const tag = c.tag ?? 'p'
     const inner = c.innerHtml ?? c.html
     if (paraId === lastParaId && groups.length > 0 && groups[groups.length - 1].tag === tag) {
-      groups[groups.length - 1].parts.push(inner)
+      const g = groups[groups.length - 1]
+      g.parts.push(inner)
+      if (c.isSplitHead) g.splitHead = true
     } else {
-      groups.push({ tag, cls: c.className, parts: [inner] })
+      groups.push({ tag, cls: c.className, parts: [inner], splitHead: !!c.isSplitHead })
       lastParaId = paraId
     }
   }
   return groups.map(g => {
-    const open = g.cls ? `<${g.tag} class="${g.cls}">` : `<${g.tag}>`
+    const cls = [g.cls, g.splitHead ? 'split-head' : ''].filter(Boolean).join(' ')
+    const open = cls ? `<${g.tag} class="${cls}">` : `<${g.tag}>`
     return `${open}${g.parts.join(' ')}</${g.tag}>`
   }).join('\n')
 }
@@ -500,6 +508,7 @@ function splitChunkAtHeight(
     html: wrapInTag(chunk.tag, chunk.className, bestHeadHtml),
     torahMarkers: headMarkers.torah,
     storyMarkers: headMarkers.story,
+    isSplitHead: true,
   }
   const tail: ChunkWithMeta = {
     ...chunk,
@@ -512,6 +521,7 @@ function splitChunkAtHeight(
     chapterNumber: undefined,
     chapterTitle: undefined,
     subtitle: undefined,
+    isSplitHead: false,
   }
   return { head, tail }
 }
