@@ -24,10 +24,15 @@ const gradientLeft: React.CSSProperties = {
 
 function ColumnDivider({ label }: { label: string }) {
   return (
-    <div className="pb-3 flex-shrink-0">
+    <div className="pb-2 flex-shrink-0">
       <div className="flex items-center">
         <div className="flex-1 h-[0.8rem]" style={gradientRight} />
-        <span className="font-vilna font-bold text-base text-black whitespace-nowrap px-4">{label}</span>
+        <span
+          className="font-vilna font-bold text-black whitespace-nowrap px-3"
+          style={{ fontSize: '11pt', letterSpacing: '0.02em' }}
+        >
+          {label}
+        </span>
         <div className="flex-1 h-[0.8rem]" style={gradientLeft} />
       </div>
     </div>
@@ -42,18 +47,25 @@ function itemCls(f: FootnoteItem, font: string, size: string, hl?: boolean, rd?:
   ].filter(Boolean).join(' ')
 }
 
-// Footnote item with marker prefix: (א) for Hebrew, [1] for numeric
+// Footnote item renderer. Continuation notes (split tails) show no marker.
 function FN({ f, font, size, hl, rd }: {
   f: FootnoteItem; font: string; size: string; hl?: boolean; rd?: boolean
 }) {
+  const content = f.formattedContent.trim().replace(/^<p[^>]*>([\s\S]*?)<\/p>$/, '$1')
+  if (f.isContinuation) {
+    return (
+      <div
+        className={itemCls(f, font, size, hl, rd)}
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
+    )
+  }
   const isHebrew = /^[א-ת]/.test(f.marker)
-  const prefix = isHebrew
-    ? `<span class="footnote-marker">(${f.marker})</span>`
-    : `<span class="footnote-marker">[${f.marker}]</span>`
+  const marker = isHebrew ? `(${f.marker})` : `[${f.marker}]`
   return (
     <div
       className={itemCls(f, font, size, hl, rd)}
-      dangerouslySetInnerHTML={{ __html: prefix + ' ' + f.formattedContent }}
+      dangerouslySetInnerHTML={{ __html: `<span class="footnote-marker">${marker}</span> ${content}` }}
     />
   )
 }
@@ -62,12 +74,15 @@ export function FootnotesSection({
   torahFootnotes,
   storyFootnotes,
   layout,
-  torahColumnName = 'מקור השפע',
-  storyColumnName = 'צינור השפע',
+  // צינור השפע = endnotes (torahFootnotes, Hebrew-letter markers)
+  // מקור השפע  = footnotes (storyFootnotes, numeric markers)
+  torahColumnName = 'צינור השפע',
+  storyColumnName = 'מקור השפע',
   sourceHighlight,
   sourceReduce,
 }: Props) {
   if (layout === 'none' || (!torahFootnotes.length && !storyFootnotes.length)) return null
+  const isFloat = layout === 'float-torah' || layout === 'float-story'
 
   // ── Single-source: newspaper 2-column ──────────────────────────────────────
   if (layout === 'single-torah' || layout === 'single-story') {
@@ -88,27 +103,22 @@ export function FootnotesSection({
     )
   }
 
-  // ── Dual-source: determine which column is taller ──────────────────────────
-  const torahChars = torahFootnotes.reduce((s, f) => s + f.formattedContent.replace(/<[^>]+>/g, '').length, 0)
-  const storyChars = storyFootnotes.reduce((s, f) => s + f.formattedContent.replace(/<[^>]+>/g, '').length, 0)
-  const torahTaller = torahChars >= storyChars
-
   // ── Grid (even columns) ────────────────────────────────────────────────────
   if (layout === 'grid') {
     return (
       <div className="border-t border-black/15 pt-3">
         <div className="grid grid-cols-2 gap-6">
-          {/* Story on right (RTL first col), Torah on left (RTL second col) */}
-          <div>
-            <ColumnDivider label={storyColumnName} />
-            <div className="space-y-2">
-              {storyFootnotes.map(f => <FN key={f.id} f={f} font="font-shefa" size="text-[11pt] leading-snug" hl={sourceHighlight} rd={sourceReduce} />)}
-            </div>
-          </div>
+          {/* צינור השפע (endnotes) on right/RTL-first, מקור השפע (footnotes) on left/RTL-second */}
           <div>
             <ColumnDivider label={torahColumnName} />
             <div className="space-y-2">
               {torahFootnotes.map(f => <FN key={f.id} f={f} font="font-frank" size="text-[10pt] leading-relaxed" hl={sourceHighlight} rd={sourceReduce} />)}
+            </div>
+          </div>
+          <div>
+            <ColumnDivider label={storyColumnName} />
+            <div className="space-y-2">
+              {storyFootnotes.map(f => <FN key={f.id} f={f} font="font-shefa" size="text-[11pt] leading-snug" hl={sourceHighlight} rd={sourceReduce} />)}
             </div>
           </div>
         </div>
@@ -117,15 +127,23 @@ export function FootnotesSection({
   }
 
   // ── L-shape float ──────────────────────────────────────────────────────────
-  const floatSide  = torahTaller ? 'right' : 'left'
-  const floatItems = torahTaller ? torahFootnotes : storyFootnotes
-  const floatLabel = torahTaller ? torahColumnName : storyColumnName
-  const floatFont  = torahTaller ? 'font-frank' : 'font-shefa'
-  const floatSize  = torahTaller ? 'text-[10pt] leading-relaxed' : 'text-[11pt] leading-snug'
-  const wrapItems  = torahTaller ? storyFootnotes : torahFootnotes
-  const wrapLabel  = torahTaller ? storyColumnName : torahColumnName
-  const wrapFont   = torahTaller ? 'font-shefa' : 'font-frank'
-  const wrapSize   = torahTaller ? 'text-[11pt] leading-snug' : 'text-[10pt] leading-relaxed'
+  // Dividers go in a flex row at the top. The SHORTER column floats; the LONGER
+  // column is a normal block, whose inline content wraps in shortened line boxes
+  // alongside the float, then resumes full width once the float ends — creating
+  // the L-shape. The longer column MUST NOT be a BFC (no overflow:hidden), or
+  // it would sit beside the float instead of wrapping it.
+  if (!isFloat) return null
+  const torahIsTaller = layout === 'float-torah'
+  const floatItems = torahIsTaller ? storyFootnotes : torahFootnotes  // shorter
+  const floatFont  = torahIsTaller ? 'font-shefa' : 'font-frank'
+  const floatSize  = torahIsTaller ? 'text-[11pt] leading-snug' : 'text-[10pt] leading-relaxed'
+  // RTL: torah always physical-right.
+  // torahIsTaller → story (shorter) on left → floats LEFT
+  // !torahIsTaller → torah (shorter) on right → floats RIGHT
+  const floatSide  = torahIsTaller ? 'left' : 'right'
+  const wrapItems  = torahIsTaller ? torahFootnotes : storyFootnotes   // longer
+  const wrapFont   = torahIsTaller ? 'font-frank' : 'font-shefa'
+  const wrapSize   = torahIsTaller ? 'text-[10pt] leading-relaxed' : 'text-[11pt] leading-snug'
 
   const floatStyle: React.CSSProperties = {
     float: floatSide,
@@ -135,19 +153,24 @@ export function FootnotesSection({
 
   return (
     <div className="border-t border-black/15 pt-3 flow-root">
-      <div style={floatStyle}>
-        <ColumnDivider label={floatLabel} />
-        <div className="space-y-2">
-          {floatItems.map(f => <FN key={f.id} f={f} font={floatFont} size={floatSize} hl={sourceHighlight} rd={sourceReduce} />)}
+      {/* Dividers row — RTL parent puts torah on right, story on left */}
+      <div className="flex gap-6 mb-2">
+        <div className="flex-1">
+          <ColumnDivider label={torahColumnName} />
+        </div>
+        <div className="flex-1">
+          <ColumnDivider label={storyColumnName} />
         </div>
       </div>
-      <div>
-        <ColumnDivider label={wrapLabel} />
-        <div className="space-y-2">
-          {wrapItems.map(f => <FN key={f.id} f={f} font={wrapFont} size={wrapSize} hl={sourceHighlight} rd={sourceReduce} />)}
-        </div>
+      {/* Float: shorter column items only */}
+      <div style={floatStyle} className="space-y-2">
+        {floatItems.map(f => <FN key={f.id} f={f} font={floatFont} size={floatSize} hl={sourceHighlight} rd={sourceReduce} />)}
       </div>
-      <div className="clear-both" />
+      {/* Longer column items: normal block, NO BFC. Line boxes wrap around float
+          while it persists; expand to full width below it → L-shape. */}
+      <div className="space-y-2">
+        {wrapItems.map(f => <FN key={f.id} f={f} font={wrapFont} size={wrapSize} hl={sourceHighlight} rd={sourceReduce} />)}
+      </div>
     </div>
   )
 }

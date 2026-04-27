@@ -15,12 +15,14 @@ const CONTENT_H     = PAGE_H - MARGIN_T - MARGIN_B   // 707.2
 const COL_GAP           = 24     // gap between dual footnote columns
 const COL_W             = (CONTENT_W - COL_GAP) / 2  // ≈ 228.26 px
 const MIN_COL_H         = 20     // min px to bother rendering columns
-const CHAPTER_HEADER_H  = 100    // estimated chapter-header height
+const RUNNING_HEADER_H  = 72     // running-title strip at the top of every page
+const CHAPTER_NUM_H     = 60     // chapter number block (e.g. "פרק ד")
+const CHAPTER_TITLE_H   = 50     // chapter title
+const CHAPTER_SUB_H     = 38     // chapter subtitle
 const COL_HEADER_H      = 50     // column-divider header height
 const MAIN_FOOT_SPACER  = 12     // spacer between main text and footnotes
-const FLOAT_THRESHOLD   = 2      // |torahLines - storyLines| >= this → float layout
-const CHARS_PER_LINE    = 45     // for line-count estimation
 const MAX_PAGES         = 500
+const LINE_H            = 21     // approximate body line height (11pt * 1.4 ≈ 20.5px)
 
 // ── DOM measurement container ─────────────────────────────────────────────────
 let _mc: HTMLDivElement | null = null
@@ -43,16 +45,24 @@ function measure(el: HTMLElement): number {
 function measureMainHtml(html: string): number {
   if (!html.trim()) return 0
   const el = document.createElement('div')
-  el.style.cssText = `width:${CONTENT_W}px;font-family:'PFT Vilna',serif;font-size:17px;line-height:1.5;direction:rtl;unicode-bidi:plaintext`
+  // Match the rendered body styles in PageSurface (font-vilna, 11pt, 1.4)
+  el.style.cssText = `width:${CONTENT_W}px;font-family:'PFT Vilna',serif;font-size:11pt;line-height:1.4;direction:rtl;unicode-bidi:plaintext`
   el.className = 'main-text'
   el.innerHTML = html
   return measure(el)
 }
 
+function noteHtml(f: FootnoteItem, fontClass: string, sizeClass: string): string {
+  if (f.isContinuation) {
+    return `<div class="${fontClass} ${sizeClass} footnote-item" style="direction:rtl">${f.formattedContent}</div>`
+  }
+  const isHebrew = /^[א-ת]/.test(f.marker)
+  const marker = isHebrew ? `(${f.marker})` : `[${f.marker}]`
+  return `<div class="${fontClass} ${sizeClass} footnote-item" style="direction:rtl"><span class="footnote-marker">${marker}</span> ${f.formattedContent}</div>`
+}
+
 function itemsHtml(items: FootnoteItem[], fontClass: string, sizeClass: string): string {
-  return items.map(f =>
-    `<div class="${fontClass} ${sizeClass} footnote-item" style="direction:rtl">${f.formattedContent}</div>`
-  ).join('')
+  return items.map(f => noteHtml(f, fontClass, sizeClass)).join('')
 }
 
 // Measure items in a single column at given width
@@ -90,34 +100,177 @@ async function preloadFonts(): Promise<void> {
   await Promise.allSettled(specs.map(s => document.fonts.load(s)))
 }
 
-// ── Line-count estimator (for float-wrap decision) ────────────────────────────
-function estimateLines(items: FootnoteItem[]): number {
-  const chars = items.reduce(
-    (s, f) => s + f.formattedContent.replace(/<[^>]+>/g, '').length,
-    0
-  )
-  return Math.ceil(chars / CHARS_PER_LINE)
+// ── HTML word-split helpers ──────────────────────────────────────────────────
+
+function findWordCharOffset(text: string, wordCount: number): number {
+  let words = 0
+  let i = 0
+  while (i < text.length) {
+    while (i < text.length && /\s/.test(text[i])) i++
+    if (i >= text.length) break
+    words++
+    while (i < text.length && !/\s/.test(text[i])) i++
+    if (words === wordCount) return i
+  }
+  return text.length
 }
 
-// ── Per-column fit ────────────────────────────────────────────────────────────
-function fitColumn(
+// Split HTML at `wordCount` plain-text words using the DOM Range API.
+// Returns { head, tail } HTML strings. Both share the same markup structure.
+function splitHtmlAtWords(html: string, wordCount: number): { head: string; tail: string } {
+  if (wordCount <= 0) return { head: '', tail: html }
+
+  const container = document.createElement('div')
+  container.innerHTML = html
+
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT)
+  let wordsFound = 0
+
+  let node: Text | null
+  while ((node = walker.nextNode() as Text | null) !== null) {
+    const text = node.textContent!
+    const nodeWordCount = text.split(/\s+/).filter(Boolean).length
+
+    if (wordsFound + nodeWordCount >= wordCount) {
+      const needed = wordCount - wordsFound
+      const charOffset = findWordCharOffset(text, needed)
+
+      // Split this text node in-place; node now holds [0..charOffset)
+      node.splitText(charOffset)
+      const nextNode = node.nextSibling!
+
+      const headRange = document.createRange()
+      headRange.setStart(container, 0)
+      headRange.setEndAfter(node)
+      const headFrag = headRange.cloneContents()
+      const headDiv = document.createElement('div')
+      headDiv.appendChild(headFrag)
+
+      const tailRange = document.createRange()
+      tailRange.selectNodeContents(container)
+      tailRange.setStart(nextNode, 0)
+      const tailFrag = tailRange.cloneContents()
+      const tailDiv = document.createElement('div')
+      tailDiv.appendChild(tailFrag)
+
+      return {
+        head: headDiv.innerHTML,
+        tail: tailDiv.innerHTML.replace(/^\s+/, ''),
+      }
+    }
+    wordsFound += nodeWordCount
+  }
+
+  return { head: html, tail: '' }
+}
+
+// Binary-search to find the largest word prefix of `note.formattedContent` that
+// renders within `availH` px at the given column width / layout.
+// Returns split { head, tail } items, or null if the whole note fits / can't split.
+function splitNoteAtHeight(
+  note: FootnoteItem,
+  availH: number,
+  colWidth: number,
+  fontClass: string,
+  sizeClass: string,
+  twoCol: boolean,
+): { head: FootnoteItem; tail: FootnoteItem } | null {
+  if (availH < MIN_COL_H) return null
+
+  const measureFn = (items: FootnoteItem[]) =>
+    twoCol
+      ? measureTwoColLayout(items, fontClass, sizeClass)
+      : measureColumnItems(items, colWidth, fontClass, sizeClass)
+
+  const fullH = measureFn([note])
+  if (fullH <= availH) return null  // fits whole — no split needed
+
+  const tmp = document.createElement('div')
+  tmp.innerHTML = note.formattedContent
+  const totalWords = (tmp.textContent ?? '').split(/\s+/).filter(Boolean).length
+  if (totalWords <= 1) return null   // can't split a single word
+
+  let lo = 1, hi = totalWords - 1, bestCount = 0
+
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1
+    const { head: headHtml } = splitHtmlAtWords(note.formattedContent, mid)
+    const h = measureFn([{ ...note, id: note.id + '-h', formattedContent: headHtml }])
+    if (h <= availH) { bestCount = mid; lo = mid + 1 }
+    else              { hi = mid - 1 }
+  }
+
+  if (bestCount === 0) return null
+
+  const { head: headHtml, tail: tailHtml } = splitHtmlAtWords(note.formattedContent, bestCount)
+  if (!tailHtml.trim()) return null
+
+  return {
+    head: { ...note, id: note.id + '-head', formattedContent: headHtml },
+    tail: { ...note, id: note.id + '-cont', formattedContent: tailHtml, isContinuation: true },
+  }
+}
+
+// Greedy fit + multi-note iterative split: each overflow item that can't fit
+// whole is split, with its head placed on this page and its tail returned to
+// overflow. Space is reserved for subsequent overflow notes (≈1 line each)
+// so every note in `notes` ends up with at least its head on this page,
+// honouring the Iron Rule. Document order is preserved on overflow.
+function fitColumnMulti(
   notes: FootnoteItem[],
   maxH: number,
   colWidth: number,
   fontClass: string,
-  sizeClass: string
+  sizeClass: string,
+  twoCol: boolean,
 ): { fitted: FootnoteItem[]; overflow: FootnoteItem[] } {
+  const measure = (items: FootnoteItem[]) =>
+    twoCol
+      ? measureTwoColLayout(items, fontClass, sizeClass)
+      : measureColumnItems(items, colWidth, fontClass, sizeClass)
+
   let fitted: FootnoteItem[] = []
-  for (let i = 0; i < notes.length; i++) {
-    const candidate = [...fitted, notes[i]]
-    const h = measureColumnItems(candidate, colWidth, fontClass, sizeClass)
-    if (h <= maxH) {
+  let queue = [...notes]
+  const tails: FootnoteItem[] = []
+
+  while (queue.length > 0) {
+    const item = queue[0]
+    const fittedH = fitted.length ? measure(fitted) : 0
+    const remainH = maxH - fittedH
+    if (remainH < MIN_COL_H) break
+
+    // Whole-fit if it fits — earlier notes never get split, only the last
+    // note that spills off the page is broken. This matches the standard
+    // book convention: "only the bottom note spills."
+    const candidate = [...fitted, item]
+    const candidateH = measure(candidate)
+    if (candidateH <= maxH) {
       fitted = candidate
-    } else {
-      return { fitted, overflow: notes.slice(i) }
+      queue.shift()
+      continue
     }
+
+    // This is the spilling note (it doesn't fit whole) — split it so its
+    // head appears here and its tail spills to the next page.
+    const split = splitNoteAtHeight(item, remainH, colWidth, fontClass, sizeClass, twoCol)
+    if (split) {
+      fitted = [...fitted, split.head]
+      tails.push(split.tail)
+      queue.shift()
+      // Anything remaining after a split also spills — stop fitting.
+      break
+    }
+
+    // Could not split (note too short / no prefix fits the remaining space).
+    // Force-place if nothing else is fitted, otherwise stop and let it spill.
+    if (fitted.length === 0) {
+      fitted = [item]
+      queue.shift()
+    }
+    break
   }
-  return { fitted, overflow: [] }
+
+  return { fitted, overflow: [...tails, ...queue] }
 }
 
 // ── Footnote fit result ───────────────────────────────────────────────────────
@@ -154,34 +307,18 @@ function fitFootnotes(
 
   // ── Single-source ──────────────────────────────────────────────────────────
   if (!torah.length || !story.length) {
-    const notes = torah.length ? torah : story
+    const notes    = torah.length ? torah : story
     const fontClass = torah.length ? 'font-frank' : 'font-shefa'
     const sizeClass = torah.length ? 'text-[10pt] leading-relaxed' : 'text-[11pt] leading-snug'
     const layout: FootnotesLayout = torah.length ? 'single-torah' : 'single-story'
 
-    // Fit using actual 2-column rendered height — greedily add notes until they exceed availForCols
-    let fitted: FootnoteItem[] = []
-    let overflow: FootnoteItem[] = []
-    for (let i = 0; i < notes.length; i++) {
-      const candidate = [...fitted, notes[i]]
-      const h = measureTwoColLayout(candidate, fontClass, sizeClass)
-      if (h <= availForCols) {
-        fitted = candidate
-      } else {
-        overflow = notes.slice(i)
-        break
-      }
-    }
-    // Safety: always place at least 1 note to prevent infinite overflow loops
-    if (fitted.length === 0 && notes.length > 0) {
-      fitted = [notes[0]]
-      overflow = notes.slice(1)
-    }
-    const renderedColH = fitted.length ? measureTwoColLayout(fitted, fontClass, sizeClass) : 0
-    const totalHeight = fitted.length ? COL_HEADER_H + renderedColH : 0
+    const { fitted, overflow } = fitColumnMulti(notes, availForCols, COL_W, fontClass, sizeClass, true)
+
+    const renderedH  = fitted.length ? measureTwoColLayout(fitted, fontClass, sizeClass) : 0
+    const totalHeight = fitted.length ? COL_HEADER_H + renderedH : 0
     return {
-      torahFitted: torah.length ? fitted : [],
-      storyFitted: story.length ? fitted : [],
+      torahFitted:  torah.length ? fitted   : [],
+      storyFitted:  story.length ? fitted   : [],
       torahOverflow: torah.length ? overflow : [],
       storyOverflow: story.length ? overflow : [],
       totalHeight,
@@ -190,31 +327,19 @@ function fitFootnotes(
   }
 
   // ── Dual-source ────────────────────────────────────────────────────────────
-  const torahLines = estimateLines(torah)
-  const storyLines = estimateLines(story)
-  const layout: FootnotesLayout = Math.abs(torahLines - storyLines) >= FLOAT_THRESHOLD ? 'float' : 'grid'
+  const { fitted: tFitted, overflow: tOverflow } =
+    fitColumnMulti(torah, availForCols, COL_W, 'font-frank', 'text-[10pt] leading-relaxed', false)
+  const { fitted: sFitted, overflow: sOverflow } =
+    fitColumnMulti(story, availForCols, COL_W, 'font-shefa', 'text-[11pt] leading-snug', false)
 
-  const torahFit = fitColumn(torah, availForCols, COL_W, 'font-frank', 'text-[10pt] leading-relaxed')
-  const storyFit = fitColumn(story, availForCols, COL_W, 'font-shefa', 'text-[11pt] leading-snug')
-
-  // Safety: always place at least 1 note per column to prevent infinite overflow loops
-  const tFitted = torahFit.fitted.length ? torahFit.fitted : torah.length ? [torah[0]] : []
-  const sFitted = storyFit.fitted.length ? storyFit.fitted : story.length ? [story[0]] : []
-  const tOverflow = torahFit.fitted.length ? torahFit.overflow : torah.slice(1)
-  const sOverflow = storyFit.fitted.length ? storyFit.overflow : story.slice(1)
-
+  // Measured heights of fitted content determine which column is taller → float direction
   const torahH = measureColumnItems(tFitted, COL_W, 'font-frank', 'text-[10pt] leading-relaxed')
   const storyH = measureColumnItems(sFitted, COL_W, 'font-shefa', 'text-[11pt] leading-snug')
+  // Always use float layout for dual-source; direction by measured height (torah wins ties)
+  const layout: FootnotesLayout = torahH >= storyH ? 'float-torah' : 'float-story'
   const totalHeight = COL_HEADER_H + Math.max(torahH, storyH)
 
-  return {
-    torahFitted: tFitted,
-    storyFitted: sFitted,
-    torahOverflow: tOverflow,
-    storyOverflow: sOverflow,
-    totalHeight,
-    layout,
-  }
+  return { torahFitted: tFitted, storyFitted: sFitted, torahOverflow: tOverflow, storyOverflow: sOverflow, totalHeight, layout }
 }
 
 // ── Chunk helpers ─────────────────────────────────────────────────────────────
@@ -225,25 +350,51 @@ type ChunkWithMeta = TextChunk & {
   isFirstInChapter: boolean
 }
 
+// Merge consecutive sub-chunks from the same source paragraph into a single
+// block element so the body reads as one paragraph (no break after sentence
+// punctuation). Different paragraphs / headings keep their own elements.
 function joinChunks(chunks: TextChunk[]): string {
-  return chunks.map(c => c.html).join('\n')
+  if (chunks.length === 0) return ''
+  const groups: { tag: string; cls?: string; parts: string[] }[] = []
+  let lastParaId = ''
+  for (const c of chunks) {
+    const paraId = c.paragraphId ?? c.id
+    const tag = c.tag ?? 'p'
+    const inner = c.innerHtml ?? c.html
+    if (paraId === lastParaId && groups.length > 0 && groups[groups.length - 1].tag === tag) {
+      groups[groups.length - 1].parts.push(inner)
+    } else {
+      groups.push({ tag, cls: c.className, parts: [inner] })
+      lastParaId = paraId
+    }
+  }
+  return groups.map(g => {
+    const open = g.cls ? `<${g.tag} class="${g.cls}">` : `<${g.tag}>`
+    return `${open}${g.parts.join(' ')}</${g.tag}>`
+  }).join('\n')
 }
 
 function collectNotes(
   markers: string[],
   noteMap: Map<string, FootnoteItem>,
-  existing: FootnoteItem[]
+  pending: FootnoteItem[]
 ): FootnoteItem[] {
-  const existingIds = new Set(existing.map(n => n.id))
-  const added: FootnoteItem[] = []
+  // Check by both id and marker: pending may hold a continuation tail (-cont)
+  // of a note whose marker appears in the new refs — don't add the original again
+  const pendingIds = new Set(pending.map(n => n.id))
+  const pendingMarkers = new Set(pending.map(n => n.marker))
+  const newNotes: FootnoteItem[] = []
   for (const m of markers) {
     const note = noteMap.get(m)
-    if (note && !existingIds.has(note.id)) {
-      added.push(note)
-      existingIds.add(note.id)
+    if (note && !pendingIds.has(note.id) && !pendingMarkers.has(note.marker)) {
+      newNotes.push(note)
+      pendingIds.add(note.id)
+      pendingMarkers.add(note.marker)
     }
   }
-  return [...existing, ...added]
+  // Spec Rule 4: spilled notes drain BEFORE new notes are introduced.
+  // Pending continuations sit at the TOP of the notes zone; new notes follow.
+  return [...pending, ...newNotes]
 }
 
 // ── Main layout function ──────────────────────────────────────────────────────
@@ -271,6 +422,9 @@ export async function layoutDocument(parsed: ParsedDocx): Promise<ParsedDocument
   let overflowStory: FootnoteItem[] = []
   // Track page a marker was first referenced on (for staleness)
   const refPageMap = new Map<string, number>()
+  // Active chapter info — used to populate the running header on every page
+  // of the chapter, not just the chapter's first page.
+  let activeChapterInfo: string | undefined
 
   while (chunkIdx < allChunks.length || overflowTorah.length > 0 || overflowStory.length > 0) {
     const pageNum = pages.length + 1
@@ -281,7 +435,12 @@ export async function layoutDocument(parsed: ParsedDocx): Promise<ParsedDocument
     const hasChapterHeader =
       !!firstChunk?.isFirstInChapter &&
       !!(firstChunk?.chapterNumber || firstChunk?.chapterTitle)
-    const headerH = hasChapterHeader ? CHAPTER_HEADER_H : 0
+    const chapterH = hasChapterHeader
+      ? (firstChunk?.chapterNumber ? CHAPTER_NUM_H : 0) +
+        (firstChunk?.chapterTitle  ? CHAPTER_TITLE_H : 0) +
+        (firstChunk?.subtitle      ? CHAPTER_SUB_H : 0)
+      : 0
+    const headerH = RUNNING_HEADER_H + chapterH
     const avail = CONTENT_H - headerH
 
     // Start with overflow from previous page
@@ -303,42 +462,57 @@ export async function layoutDocument(parsed: ParsedDocx): Promise<ParsedDocument
       continue
     }
 
-    // ── Inner chunk accumulation loop ────────────────────────────────────────
+    // ── Inner chunk accumulation — "trial-fail" algorithm ────────────────────
+    // Start with 0 body text. Fit all notes (pending overflow + refs from each
+    // new chunk) in remaining space. Keep adding chunks until white space < 1 line.
     const pageChunks: ChunkWithMeta[] = []
     let pageTorahRefs: string[] = []
     let pageStoryRefs: string[] = []
+    let mainH = 0
 
-    while (chunkIdx < allChunks.length) {
+    while (true) {
+      // ① How much space do the current footnotes need?
+      const allTorah = collectNotes(pageTorahRefs, torahFootnotes, pendingTorah)
+      const allStory = collectNotes(pageStoryRefs, storyFootnotes, pendingStory)
+      const hasNotes = allTorah.length > 0 || allStory.length > 0
+      const spacer   = hasNotes ? MAIN_FOOT_SPACER : 0
+      const fit      = fitFootnotes(allTorah, allStory, avail - mainH - spacer)
+      const footH    = fit.totalHeight
+      const whiteSpace = avail - mainH - footH - spacer
+
+      // ② Page is tight (< 1 line of white space) → stop
+      if (whiteSpace < LINE_H) break
+
+      // ③ Try to add the next chunk
+      if (chunkIdx >= allChunks.length) break
       const chunk = allChunks[chunkIdx]
-      const candidate = [...pageChunks, chunk]
-      const candidateHtml = joinChunks(candidate)
-      const mainH = measureMainHtml(candidateHtml)
+      const newMainH = measureMainHtml(joinChunks([...pageChunks, chunk]))
+      if (newMainH > avail - MIN_COL_H) break  // text doesn't physically fit
 
-      if (mainH > avail - MIN_COL_H) break  // main text won't fit
+      // ③.5 Iron Rule check — every marker introduced on THIS page must have
+      // its note's head present in the fit. Adding more body shrinks the notes
+      // zone, which can push an earlier marker's note out — so re-check ALL
+      // accumulated new markers, not just this chunk's.
+      const trialTorahRefs = [...pageTorahRefs, ...chunk.torahMarkers]
+      const trialStoryRefs = [...pageStoryRefs, ...chunk.storyMarkers]
+      const trialTorah = collectNotes(trialTorahRefs, torahFootnotes, pendingTorah)
+      const trialStory = collectNotes(trialStoryRefs, storyFootnotes, pendingStory)
+      const trialSpacer = trialTorah.length || trialStory.length ? MAIN_FOOT_SPACER : 0
+      const trialFit = fitFootnotes(trialTorah, trialStory, avail - newMainH - trialSpacer)
+      const fittedMarkerSet = new Set([
+        ...trialFit.torahFitted.map(n => n.marker),
+        ...trialFit.storyFitted.map(n => n.marker),
+      ])
+      const allNewMarkers = [...trialTorahRefs, ...trialStoryRefs]
+      const ironOk = allNewMarkers.every(m => fittedMarkerSet.has(m))
+      // Iron Rule only — continuations are allowed to chain-spill if needed.
+      if (!ironOk) break
 
-      const candTorahRefs = [...pageTorahRefs, ...chunk.torahMarkers]
-      const candStoryRefs = [...pageStoryRefs, ...chunk.storyMarkers]
-
-      const candTorahNotes = collectNotes(candTorahRefs, torahFootnotes, pendingTorah)
-      const candStoryNotes = collectNotes(candStoryRefs, storyFootnotes, pendingStory)
-
-      const hasNotes = candTorahNotes.length > 0 || candStoryNotes.length > 0
-      const spacer = hasNotes ? MAIN_FOOT_SPACER : 0
-      const availForFoot = avail - mainH - spacer
-
-      const fit = fitFootnotes(candTorahNotes, candStoryNotes, availForFoot)
-      const hasOverflow = fit.torahOverflow.length > 0 || fit.storyOverflow.length > 0
-      const fillRatio = mainH / avail
-
-      // Only break when NEW markers in this chunk cause overflow (not pre-existing overflow notes)
-      const hasNewMarkers = chunk.torahMarkers.some(m => !pageTorahRefs.includes(m))
-                         || chunk.storyMarkers.some(m => !pageStoryRefs.includes(m))
-      if (hasNewMarkers && hasOverflow && fillRatio >= 0.2) break
-
-      // Accept this chunk
+      // ④ Accept
       pageChunks.push(chunk)
-      pageTorahRefs = candTorahRefs
-      pageStoryRefs = candStoryRefs
+      pageTorahRefs = trialTorahRefs
+      pageStoryRefs = trialStoryRefs
+      mainH = newMainH
 
       chunk.torahMarkers.forEach(m => { if (!refPageMap.has(m)) refPageMap.set(m, pageNum) })
       chunk.storyMarkers.forEach(m => { if (!refPageMap.has(m)) refPageMap.set(m, pageNum) })
@@ -346,21 +520,23 @@ export async function layoutDocument(parsed: ParsedDocx): Promise<ParsedDocument
       chunkIdx++
     }
 
-    // Force at least one chunk to avoid infinite loop
-    if (pageChunks.length === 0 && chunkIdx < allChunks.length) {
+    // Force at least one chunk to avoid infinite loop — UNLESS pending notes exist
+    // (in which case we emit a notes-only page to drain them first, then retry on next page).
+    const hasPending = pendingTorah.length > 0 || pendingStory.length > 0
+    if (pageChunks.length === 0 && chunkIdx < allChunks.length && !hasPending) {
       const chunk = allChunks[chunkIdx]
       pageChunks.push(chunk)
       pageTorahRefs = [...chunk.torahMarkers]
       pageStoryRefs = [...chunk.storyMarkers]
+      mainH = measureMainHtml(joinChunks(pageChunks))
       chunk.torahMarkers.forEach(m => { if (!refPageMap.has(m)) refPageMap.set(m, pageNum) })
       chunk.storyMarkers.forEach(m => { if (!refPageMap.has(m)) refPageMap.set(m, pageNum) })
       chunkIdx++
     }
 
-    // ── Final footnote fit for committed chunks ───────────────────────────────
+    // ── Final footnote fit (mainH already measured in the loop) ─────────────────
     const finalTorah = collectNotes(pageTorahRefs, torahFootnotes, pendingTorah)
     const finalStory = collectNotes(pageStoryRefs, storyFootnotes, pendingStory)
-    const mainH = measureMainHtml(joinChunks(pageChunks))
     const spacer = finalTorah.length || finalStory.length ? MAIN_FOOT_SPACER : 0
     const finalFit = fitFootnotes(finalTorah, finalStory, avail - mainH - spacer)
 
@@ -373,7 +549,16 @@ export async function layoutDocument(parsed: ParsedDocx): Promise<ParsedDocument
       ? { chapterNumber: fc.chapterNumber, chapterTitle: fc.chapterTitle, subtitle: fc.subtitle }
       : {}
 
-    pages.push(makePage(pageNum, pageChunks, chapterMeta, headerH, finalFit, mainH))
+    // Update the running chapter context when we encounter a new chapter on
+    // this page. Subsequent pages reuse the same activeChapterInfo until the
+    // next chapter starts.
+    if (fc?.isFirstInChapter && (fc.chapterNumber || fc.chapterTitle)) {
+      activeChapterInfo = fc.chapterTitle
+        ? `${fc.chapterNumber ?? ''}${fc.chapterNumber && fc.chapterTitle ? ': ' : ''}${fc.chapterTitle}`
+        : fc.chapterNumber
+    }
+
+    pages.push(makePage(pageNum, pageChunks, chapterMeta, headerH, finalFit, mainH, activeChapterInfo))
   }
 
   // Fill totalPages
@@ -399,7 +584,8 @@ function makePage(
   meta: { chapterNumber?: string; chapterTitle?: string; subtitle?: string },
   headerH: number,
   fit: FitResult,
-  measuredMainH: number     // actual DOM-measured height of main text content
+  measuredMainH: number,
+  runningChapterInfo?: string,
 ): PageData {
   const mainHtml = joinChunks(chunks)
   return {
@@ -408,8 +594,9 @@ function makePage(
     chapterNumber: meta.chapterNumber,
     chapterTitle: meta.chapterTitle,
     subtitle: meta.subtitle,
+    runningChapterInfo,
     calculatedHeaderHeight: headerH,
-    calculatedMainHeight: measuredMainH,   // exact content height — no blank gap
+    calculatedMainHeight: measuredMainH,
     mainSections: mainHtml
       ? [{ id: `pg-${pageNum}`, htmlContent: mainHtml, isHeading: false }]
       : [],

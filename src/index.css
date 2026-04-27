@@ -112,6 +112,20 @@
   letter-spacing: 0.2px;
   -webkit-text-stroke: 0.3px currentColor;
 }
+/* Sentence-level chunks render as separate <p> elements; keep them flush
+   so a paragraph that spans multiple chunks reads as one paragraph. */
+.main-text p { margin: 0; padding: 0; }
+.main-text p + p { text-indent: 0; }
+/* Sub-section topic header: <p><strong>…:</strong></p> in the source becomes
+   a mini-headline above the next paragraph (matches example.pdf). */
+.main-text p.topic-header { margin-top: 0.6rem; margin-bottom: 0.2rem; }
+.main-text p.topic-header strong { font-weight: 700; font-size: 13pt; }
+/* Section heading rendered by mammoth as <h1>/<h2>: a centered headline. */
+.main-text h1, .main-text h2 {
+  font-weight: 700; text-align: center;
+  font-size: 20pt; line-height: 1.2;
+  margin: 1rem 0 0.6rem;
+}
 
 /* Footnote styles */
 .footnote-item {
@@ -129,9 +143,9 @@
 .footnote-item b, .footnote-item strong { font-weight: 900; }
 .footnote-item p { display: inline; margin: 0; padding: 0; }
 .footnote-item a { color: currentColor; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
-.footnote-marker { font-weight: 700; color: hsl(var(--title-gold)); margin-inline-end: 0.3rem; }
-.footnote-ref { font-weight: 400; font-size: 0.8em; color: hsl(var(--title-gold)); }
-.footnote-ref-inline { font-weight: 400; font-size: 0.9em; color: hsl(var(--title-gold)); }
+.footnote-marker { font-weight: 700; color: #000; margin-inline-end: 0.3rem; }
+.footnote-ref { font-weight: 700; font-size: 0.78em; color: #000; vertical-align: baseline; }
+.footnote-ref-inline { font-weight: 700; font-size: 0.85em; color: #000; }
 .paragraph-marker { font-weight: 700; }
 .footnote-marker-indent { display: inline-block; min-width: 1.5em; }
 .paragraph-marker-indent { display: inline-block; min-width: 1.5em; }

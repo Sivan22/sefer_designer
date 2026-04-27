@@ -12,6 +12,18 @@ function hebrewOrdinal(n: number): string {
 // ── Exported types ────────────────────────────────────────────────────────────
 export interface TextChunk {
   id: string
+  // Identifies the source paragraph. Sub-chunks created by sentence-splitting
+  // share the same paragraphId so the layout engine can re-merge them into
+  // a single <p> at render time (no visual break after sentence punctuation).
+  paragraphId: string
+  // Block tag of the source element ("p", "h1", etc.).
+  tag: string
+  // Optional CSS class on the rebuilt block element.
+  className?: string
+  // Inline HTML *inside* the block tag — what to concatenate when several
+  // sub-chunks from one paragraph end up on the same page.
+  innerHtml: string
+  // Full block-level HTML (`<tag>innerHtml</tag>`) — kept for measurement.
   html: string
   torahMarkers: string[]   // Hebrew-letter markers (endnote refs)
   storyMarkers: string[]   // Numeric markers (footnote refs)
@@ -51,61 +63,112 @@ function extractBodyHtml(li: Element): string {
   return clone.innerHTML.trim()
 }
 
-// ── Split a paragraph element into sentence-level chunks ─────────────────────
+// Split a paragraph into sentence-level chunks so the layout engine can place
+// each sub-chunk independently — essential for honouring the Iron Rule
+// (every marker's note must START on the marker's page). Long paragraphs with
+// many markers get split at sentence-end punctuation, giving each marker a
+// chance to land on a page where its note can fit.
 function chunkParagraph(node: HTMLElement, prefix: string): TextChunk[] {
   const tag = node.tagName.toLowerCase()
   const isHeading = /^h[1-6]$/.test(tag)
   const inner = node.innerHTML.trim()
   if (!inner) return []
 
-  // Don't split headings
-  if (isHeading) {
-    return [{
-      id: `${prefix}-0`,
-      html: `<${tag}>${inner}</${tag}>`,
-      torahMarkers: collectMarkers(node, 'torah'),
-      storyMarkers: collectMarkers(node, 'story'),
-      isHeading: true,
-    }]
-  }
+  // Detect a "sub-section topic header" — a paragraph that is wholly bold
+  // and ends with a colon, used in the source as a mini-headline above the
+  // next body paragraph (matches example.pdf style).
+  const isTopic =
+    !isHeading &&
+    tag === 'p' &&
+    /:\s*$/.test(node.textContent ?? '') &&
+    Array.from(node.childNodes).every(c =>
+      (c.nodeType === 3 && !(c.textContent ?? '').trim()) ||
+      (c.nodeType === 1 && (c as Element).tagName.toLowerCase() === 'strong')
+    )
 
-  // Split at sentence-ending punctuation
-  const SENTENCE_END = /([.!?:;׃]\s+|[.!?:;׃]$)/g
-  const parts: string[] = []
+  const wrap = (innerHtml: string): string =>
+    isTopic
+      ? `<${tag} class="topic-header">${innerHtml}</${tag}>`
+      : `<${tag}>${innerHtml}</${tag}>`
+
+  const wholeChunk = (): TextChunk => ({
+    id: `${prefix}-0`,
+    paragraphId: prefix,
+    tag,
+    className: isTopic ? 'topic-header' : undefined,
+    innerHtml: inner,
+    html: wrap(inner),
+    torahMarkers: collectMarkers(node, 'torah'),
+    storyMarkers: collectMarkers(node, 'story'),
+    isHeading,
+  })
+
+  if (isHeading) return [wholeChunk()]
+
+  // Split at sentence-end punctuation: . ! ? ; ׃ (Hebrew sof-pasuq).
+  // The split runs on the raw HTML — sentence punctuation typically sits
+  // outside <span class="footnote-ref">…</span> wrappers, so this is safe.
+  // We require each candidate sub-chunk to have at least MIN_WORDS_PER_CHUNK
+  // words; shorter pieces (e.g. "א.", "ב.") are merged forward so that
+  // section markers don't end up as their own paragraphs.
+  const MIN_WORDS_PER_CHUNK = 5
+  const SENTENCE_END = /([.!?;׃]\s+|[.!?;׃]$)/g
+  const candidates: string[] = []
   let last = 0
   let m: RegExpExecArray | null
   while ((m = SENTENCE_END.exec(inner)) !== null) {
-    parts.push(inner.slice(last, m.index + m[0].length))
+    candidates.push(inner.slice(last, m.index + m[0].length))
     last = m.index + m[0].length
   }
-  if (last < inner.length) parts.push(inner.slice(last))
+  if (last < inner.length) candidates.push(inner.slice(last))
+  if (candidates.length <= 1) return [wholeChunk()]
+
+  // Merge tiny pieces forward — accumulate into `pending` until min word count.
+  const merged: string[] = []
+  let pending = ''
+  for (const part of candidates) {
+    pending += part
+    const tmp = document.createElement('div')
+    tmp.innerHTML = pending
+    const wc = (tmp.textContent ?? '').split(/\s+/).filter(Boolean).length
+    if (wc >= MIN_WORDS_PER_CHUNK) { merged.push(pending); pending = '' }
+  }
+  if (pending) {
+    if (merged.length > 0) merged[merged.length - 1] += pending
+    else merged.push(pending)
+  }
+  if (merged.length <= 1) return [wholeChunk()]
 
   const chunks: TextChunk[] = []
-  parts.forEach((part, idx) => {
+  merged.forEach((part, idx) => {
     const trimmed = part.trim()
     if (!trimmed) return
     const wrapper = document.createElement(tag)
     wrapper.innerHTML = trimmed
     chunks.push({
       id: `${prefix}-${idx}`,
-      html: `<${tag}>${trimmed}</${tag}>`,
+      paragraphId: prefix,
+      tag,
+      className: isTopic ? 'topic-header' : undefined,
+      innerHtml: trimmed,
+      html: wrap(trimmed),
       torahMarkers: collectMarkers(wrapper, 'torah'),
       storyMarkers: collectMarkers(wrapper, 'story'),
       isHeading: false,
     })
   })
-
-  return chunks.length
-    ? chunks
-    : [{ id: `${prefix}-0`, html: `<${tag}>${inner}</${tag}>`, torahMarkers: collectMarkers(node, 'torah'), storyMarkers: collectMarkers(node, 'story'), isHeading: false }]
+  return chunks.length ? chunks : [wholeChunk()]
 }
 
 function collectMarkers(el: Element, type: 'torah' | 'story'): string[] {
   const markers: string[] = []
   el.querySelectorAll('span.footnote-ref').forEach(span => {
-    const m = span.textContent?.trim() ?? ''
-    if (type === 'torah' && /^[א-ת]/.test(m)) markers.push(m)
-    else if (type === 'story' && /^\d+$/.test(m)) markers.push(m)
+    // The visible text is wrapped in brackets like "[סט]"; the raw marker
+    // ("סט", "12") is stashed on the data-marker attribute.
+    const raw = span.getAttribute('data-marker')
+      ?? (span.textContent?.trim() ?? '').replace(/^\[|\]$/g, '')
+    if (type === 'torah' && /^[א-ת]/.test(raw)) markers.push(raw)
+    else if (type === 'story' && /^\d+$/.test(raw)) markers.push(raw)
   })
   return markers
 }
@@ -157,7 +220,11 @@ export async function parseDocx(buffer: ArrayBuffer): Promise<ParsedDocx> {
 
     const span = doc.createElement('span')
     span.className = 'footnote-ref'
-    span.textContent = marker
+    span.setAttribute('data-marker', marker)
+    // Match example.pdf bracket convention: numeric footnote refs use square
+    // brackets `[X]`; Hebrew-letter endnote refs use parentheses `(X)`.
+    const isHebrew = /^[א-ת]/.test(marker)
+    span.textContent = isHebrew ? `(${marker})` : `[${marker}]`
 
     const sup = outermostSup(a)
     sup.parentNode?.replaceChild(span, sup)
@@ -198,6 +265,21 @@ export async function parseDocx(buffer: ArrayBuffer): Promise<ParsedDocx> {
   let title = ''
   let chapterIdx = 0
 
+  // A bold-only centered paragraph immediately following the chapter marker
+  // is treated as the chapter title; a second one becomes the subtitle.
+  // Heuristic: <p><strong>…</strong></p> with no other text, or an h1/h2.
+  const isPureBold = (node: HTMLElement): boolean => {
+    if (node.tagName.toLowerCase() !== 'p') return false
+    const children = Array.from(node.childNodes)
+    if (children.length === 0) return false
+    return children.every(c =>
+      (c.nodeType === 3 && !(c.textContent ?? '').trim()) ||
+      (c.nodeType === 1 && (c as Element).tagName.toLowerCase() === 'strong')
+    )
+  }
+
+  let chapterMetaSlots = 0  // 0 = expecting title, 1 = expecting subtitle, 2 = done
+
   for (const node of nodes) {
     const text = node.textContent?.trim() ?? ''
     if (!text) continue
@@ -213,7 +295,20 @@ export async function parseDocx(buffer: ArrayBuffer): Promise<ParsedDocx> {
       current = { chapterNumber: m ? `פרק ${m[1]}` : text, chunks: [] }
       chapters.push(current)
       chapterIdx++
+      chapterMetaSlots = 0
       continue
+    }
+
+    // Capture chapter title / subtitle if we just saw a chapter header.
+    // Slot 0 → chapterTitle, slot 1 → subtitle. Stop on first non-pure-bold or h-tag.
+    if (current && chapterMetaSlots < 2 && !current.chunks.length) {
+      if (isPureBold(node) || tag === 'h1') {
+        if (chapterMetaSlots === 0) current.chapterTitle = text
+        else                         current.subtitle = text
+        chapterMetaSlots++
+        continue
+      }
+      chapterMetaSlots = 2  // anything else closes the meta region
     }
 
     if (!current) {
@@ -224,8 +319,12 @@ export async function parseDocx(buffer: ArrayBuffer): Promise<ParsedDocx> {
     }
 
     if (isHeading) {
+      const hId = `c${chapterIdx}-h-${current.chunks.length}`
       current.chunks.push({
-        id: `c${chapterIdx}-h-${current.chunks.length}`,
+        id: hId,
+        paragraphId: hId,
+        tag,
+        innerHtml: node.innerHTML,
         html: node.outerHTML,
         torahMarkers: collectMarkers(node, 'torah'),
         storyMarkers: collectMarkers(node, 'story'),
