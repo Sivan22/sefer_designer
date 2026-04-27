@@ -54,9 +54,6 @@ function measureMainHtml(html: string): number {
 }
 
 function noteHtml(f: FootnoteItem, fontClass: string, sizeClass: string): string {
-  if (f.isContinuation) {
-    return `<div class="${fontClass} ${sizeClass} footnote-item" style="direction:rtl">${f.formattedContent}</div>`
-  }
   const isHebrew = /^[א-ת]/.test(f.marker)
   const marker = isHebrew ? `(${f.marker})` : `[${f.marker}]`
   return `<div class="${fontClass} ${sizeClass} footnote-item" style="direction:rtl"><span class="footnote-marker">${marker}</span> ${f.formattedContent}</div>`

@@ -48,19 +48,11 @@ function itemCls(f: FootnoteItem, font: string, size: string, hl?: boolean, rd?:
   ].filter(Boolean).join(' ')
 }
 
-// Footnote item renderer. Continuation notes (split tails) show no marker.
+// Footnote item renderer. Both heads and continuation tails show their marker.
 function FN({ f, font, size, hl, rd }: {
   f: FootnoteItem; font: string; size: string; hl?: boolean; rd?: boolean
 }) {
   const content = f.formattedContent.trim().replace(/^<p[^>]*>([\s\S]*?)<\/p>$/, '$1')
-  if (f.isContinuation) {
-    return (
-      <div
-        className={itemCls(f, font, size, hl, rd)}
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
-    )
-  }
   const isHebrew = /^[א-ת]/.test(f.marker)
   const marker = isHebrew ? `(${f.marker})` : `[${f.marker}]`
   return (
